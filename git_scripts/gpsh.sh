@@ -83,7 +83,7 @@ else
 fi
 
 
-if [[ "$is_a_git_repo" == "true" ]]; then
+if [ "$is_a_git_repo" = "true" ]; then
   current_branch=$(git branch | awk '/\*/ {print $2}');
 
   # check if it has a remote to push
@@ -93,5 +93,5 @@ if [[ "$is_a_git_repo" == "true" ]]; then
     echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${WHITE}has ${RED}no remote";
   fi
 else
-  echo "${BOLD} ■■▶ This won't work, you are not in a git repo !" && br;
+  echo "${BOLD} ■■▶ This won't work, you are not in a git repo !";
 fi
