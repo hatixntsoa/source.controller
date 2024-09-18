@@ -36,82 +36,118 @@ if ! gh --version >/dev/null 2>&1; then
   exit 1
 fi
 
-# Function to delete a branch
-delete_branch() {
-  branch_name="$1"
-  printf "${BOLD}${WHITE}Delete branch ${GREEN}$branch_name${WHITE}? (y/n) ${RESET}"
-  read delete_branch
+# Check if --help is the first argument
+[ "$1" = "--help" ] && usage
 
-  case "$delete_branch" in
-    y|Y)
-      # Switch to default branch if necessary
-      if [ "$current_branch" != "$default_branch" ]; then
-        git checkout "$default_branch" >/dev/null
-      fi
+#  Check if the current directory is a Git repository
+is_a_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)
 
-      # Delete remote branch if exists
-      if [ -n "$has_remote" ]; then
-        if git branch -r | grep -q "origin/$branch_name"; then
-          printf "${BOLD}${WHITE}Delete remote branch ${GREEN}$branch_name${WHITE}? (y/n) ${RESET}"
-          read delete_remote_branch
-          case "$delete_remote_branch" in
-            y|Y)
-              git push origin --delete "$branch_name"
-              ;;
-          esac
-        fi
-      fi
+# Check if it has a remote
+has_remote=$(git remote -v)
 
-      # Delete local branch
-      git branch -D "$branch_name"
-      ;;
-    n|N)
-      return 0
-      ;;
-    *)
-      delete_branch "$branch_name"
-      ;;
-  esac
-}
+if [ "$is_a_git_repo" = "true" ]; then
+  current_branch=$(git branch | awk '/\*/ {print $2}');
+  default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
 
-# Main function
-gbd() {
-  is_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)
-  has_remote=$(git remote -v 2>/dev/null)
-  current_branch=$(git branch --show-current 2>/dev/null)
-  default_branch=$(git symbolic-ref --short HEAD 2>/dev/null || git config --get init.defaultBranch)
-
-  if [ "$is_git_repo" != "true" ]; then
-    printf "${BOLD}■■▶ Not a Git repository!${RESET}\n"
-    return 1
+  if [ -z "$default_branch" ]; then
+    default_branch=$(git config --get init.defaultBranch)
   fi
 
-  if [ "$1" = "--help" ]; then
-    usage
-  fi
-
-  if [ "$#" -eq 1 ]; then
+  if [ $# -eq 1 ]; then
     if [ "$1" = "$default_branch" ]; then
-      printf "${BOLD}■■▶ Cannot delete the default branch!${RESET}\n"
-      return 1
-    elif ! git show-ref --verify --quiet "refs/heads/$1"; then
-      printf "${BOLD}■■▶ Branch ${GREEN}$1${WHITE} does not exist!${RESET}\n"
-      return 1
+      echo "${BOLD} ■■▶ Fatal ! Cannot Delete the Default Branch ";
+    elif ! git show-ref --verify --quiet "refs/heads/$1" &>/dev/null; then
+      echo "${BOLD} ■■▶ Fatal ! Branch ${GREEN}$1 ${WHITE}doesn't exist ${RESET}";
     else
-      delete_branch "$1"
+      # this to check if we want to delete the remote branch too
+      check_delete_remote_branch() {
+        if [ "$current_branch" = "$default_branch" ]; then
+          echo "${BOLD} ■■▶ Fatal ! Cannot Delete the Default Branch ";
+        else
+          printf "${BOLD}${WHITE}Delete remote branch${GREEN} "$current_branch"${WHITE} ? (y/n) ${RESET}";
+          read delete_remote_branch
+          echo ${RESET}
+          if [ "$delete_remote_branch" = "y" ]; then
+            git push origin --delete "$current_branch";
+          elif [ "$delete_remote_branch" = "n" ];then
+            return 0
+          else
+            check_delete_remote_branch
+          fi
+        fi
+      }
+
+      check_delete_branch() {
+        branch_name="$1"
+
+        printf "${BOLD}${WHITE}Delete branch${GREEN} "$branch_name"${WHITE} ? (y/n) ${RESET}";
+        read delete_branch
+
+        if [ "$delete_branch" = "y" ]; then
+          if [ "$current_branch" != "$default_branch" ]; then
+            git checkout $default_branch >/dev/null 2>&1;
+          fi
+          if [ "$has_remote" ]; then
+            is_remote_branch=$(git branch -r | grep "origin/$1")
+            if [ -n "$is_remote_branch" ]; then
+              check_delete_remote_branch
+            fi
+          fi
+          git branch -D "$1";
+        elif [ "$delete_branch" = "n" ]; then
+          return 0;
+        else
+          check_delete_branch $branch_name
+        fi
+      }
+      check_delete_branch $1
     fi
-  elif [ "$#" -eq 0 ]; then
+  elif [ $# -eq 0 ]; then
     if [ "$current_branch" = "$default_branch" ]; then
-      printf "${BOLD}■■▶ Cannot delete the default branch!${RESET}\n"
-      return 1
+      echo "${BOLD}${WHITE} ■■▶ Fatal ! Cannot Delete the Default Branch ";
     else
-      delete_branch "$current_branch"
+      check_delete_branch() {
+        printf "${BOLD}${WHITE}Delete branch${GREEN} "$current_branch"${WHITE} ? (y/n) ${RESET}";
+        read delete_branch
+        if [ "$delete_branch" = "y" ]; then
+          # TODO : Remote branch Deletion
+          check_delete_remote_branch() {
+            if [ "$current_branch" = "$default_branch" ]; then
+              echo "${BOLD}${WHITE} ■■▶ Fatal ! Cannot Delete the Default Branch ";
+            else
+              printf "${BOLD}${WHITE}Delete remote branch${GREEN} "$current_branch"${WHITE} ? (y/n) ${RESET}";
+              read delete_remote_branch
+              echo ${RESET}
+              if [ "$delete_remote_branch" = "y" ]; then
+                git push origin --delete "$current_branch";
+              elif [ "$delete_remote_branch" = "n" ];then
+                return 0
+              else
+                check_delete_remote_branch
+              fi
+            fi
+          }
+
+          git checkout "$default_branch" >/dev/null 2>&1;
+
+          if [ "$has_remote" ]; then
+            is_remote_branch=$(git branch -r | grep "origin/$current_branch")
+            if [ -n "$is_remote_branch" ]; then
+              check_delete_remote_branch
+            fi
+          fi
+          git branch -D "$current_branch";
+        elif [ "$delete_branch" = "n" ];then
+          return 0
+        else
+          check_delete_branch
+        fi
+      }
+      check_delete_branch
     fi
   else
-    printf "${BOLD}■■▶ Usage: gbd [branch_to_delete]${RESET}\n"
-    return 1
+    echo "${BOLD}${WHITE} ■■▶ Usage : gbd branch_to_delete";
   fi
-}
-
-# Call the gbd function with passed arguments
-gbd "$@"
+else
+  echo "${BOLD}${WHITE} ■■▶ This won't work, you are not in a git repo !";
+fi
