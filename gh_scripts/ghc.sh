@@ -7,6 +7,27 @@ LIGHT_BLUE="\e[94m"
 WHITE="\e[97m"
 RESET="\e[0m"
 
+# Function to display usage
+usage() {
+  echo "${BOLD}Usage:${RESET}"
+  echo "  $(basename "$0" .sh) [repo_name] [visibility]"
+  echo
+  echo "${BOLD}Options:${RESET}"
+  echo "  [repo_name]      Name of the GitHub repository to create."
+  echo "                   If omitted, the name of the current directory is used."
+  echo "                   (e.g., ghc or ghc private)"
+  echo
+  echo "  [visibility]     Repository visibility. Options are 'public' or 'private'."
+  echo "                   If omitted, the default is 'public'."
+  echo "                   (e.g., ghc repo_name)"
+  echo
+  echo "  --help           Display this help message."
+  echo
+  echo " If no arguments are provided, it uses the current directory name"
+  echo " as the repository name and creates a public repository."
+  exit 0
+}
+
 # Check if GitHub CLI is installed
 if ! gh --version >/dev/null 2>&1; then
   echo "gh is not installed."
@@ -20,35 +41,39 @@ clean_repo() {
   printf "%s" "$repo_name" | sed -E 's/[^a-zA-Z0-9-]/_/g'
 }
 
-# check if it is a git repo
+# Check if --help is the first argument
+if [ "$1" = "--help" ]; then
+  usage
+fi
+
+# Check if it is a git repo
 is_a_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)
 
-# check if it has remote
+# Check if it has a remote
 has_remote=$(git remote -v)
 
-# get the repo name
+# Get the repo name and visibility
 if [ $# -eq 0 ]; then
   repo="$(basename "$PWD")"
+  repo_visibility="public"
 elif [ $# -eq 1 ]; then
-  if [ "$1" != "private" ]; then
-    repo="$1"
-  else
+  if [ "$1" = "private" ]; then
     repo="$(basename "$PWD")"
-    isPrivate="$1"
+    repo_visibility="private"
+  else
+    repo="$1"
+    repo_visibility="public"
   fi
-else
+elif [ $# -eq 2 ]; then
   repo="$1"
-  shift
-  isPrivate="$1"
+  repo_visibility="$2"
+else
+  echo "${BOLD}${RED}Error: Too many arguments.${RESET}"
+  usage
 fi
 
-# clean the repo name
+# Clean the repo name
 repo_name=$(clean_repo "$repo")
-repo_visibility="public"
-
-if [ "$isPrivate" = "private" ]; then
-  repo_visibility="private"
-fi
 
 if [ "$is_a_git_repo" = "true" ]; then
   if [ -n "$has_remote" ]; then
@@ -64,7 +89,7 @@ if [ "$is_a_git_repo" = "true" ]; then
         printf "${BOLD} New repository ${LIGHT_BLUE}$repo_name ${WHITE}on GitHub ... ${RESET}"
         gh repo create "$repo_name" --"$repo_visibility" &>/dev/null
         git remote add origin "git@github.com:$current_user/$repo_name.git"
-        printf "${BOLD}${GREEN} ${RESET}\n"
+        printf "${BOLD}${GREEN}✓${RESET}\n"
 
         check_push() {
           printf "${BOLD}${WHITE} Push local commits to ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
@@ -102,7 +127,7 @@ else
       printf "${BOLD} New repository ${LIGHT_BLUE}$repo_name ${WHITE}on GitHub ... ${RESET}"
       gh repo create "$repo_name" --"$repo_visibility" -c &>/dev/null
       mv "$repo_name/.git" . && rm -rf "$repo_name"
-      printf "${BOLD}${GREEN} ${RESET}\n"
+      printf "${BOLD}${GREEN}✓${RESET}\n"
     elif [ "$create_repo" = "n" ]; then
       check_local() {
         printf "${BOLD}${WHITE} Create ${GREEN}local ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
