@@ -23,6 +23,7 @@ cd git_gh
 - **Execution Permissions**
 ```sh
 chmod +x git_scripts/*.sh
+chmod +x gh_scripts/*.sh
 chmod +x setup/*.sh
 ```
 - **Install the script**
