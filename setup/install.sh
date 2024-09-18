@@ -55,14 +55,14 @@ install_scripts() {
 			symlink_path="$binary_path/$script_name"
 
 			if [ -L "$symlink_path" ]; then
-				echo "${BOLD}${LIGHT_BLUE}$script_name ${RESET}${WHITE}already installed."
+				printf "${BOLD}${LIGHT_BLUE}$script_name ${RESET}${WHITE}already installed."
 			else
 				printf " ● Installing ${BOLD}${LIGHT_BLUE}$script_name${RESET}..."
 				$SUDO ln -s "$script" "$symlink_path"
 				printf "${BOLD}${GREEN} ${RESET}"
 			fi
 		else
-			echo "Skipping $script: Not executable."
+			printf "Skipping $script: Not executable."
 		fi
 		echo
 	done
