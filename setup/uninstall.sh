@@ -16,11 +16,9 @@ fi
 # this will check for sudo permission
 allow_sudo(){
 	if [ -n "$SUDO" ]; then
-		$SUDO -n true &>/dev/null
-		if [ $? -eq 1 ]; then
-			$SUDO echo && return 0 || return 1
-		else
-			return 0
+		$SUDO -n true 2>/dev/null
+		if [ $? -ne 0 ]; then
+			$SUDO -v
 		fi
 	fi
 }
@@ -70,12 +68,17 @@ uninstall_scripts() {
 	done
 }
 
+# prompt for sudo
+# password if required
+allow_sudo
+echo
+
 # Uninstall git scripts
-echo "${WHITE}- Uninstalling ${BOLD}Git Scripts${WHITE}...${RESET}"
-allow_sudo && uninstall_scripts "$git_scripts_path" "git"
+echo "${WHITE}   Uninstalling ${BOLD}Git Scripts${WHITE}...${RESET}"
+uninstall_scripts "$git_scripts_path" "git"
 echo
 
 # Uninstall gh scripts
-echo "${WHITE}- Uninstalling ${BOLD}Gh Scripts${WHITE}...${RESET}"
-allow_sudo && uninstall_scripts "$gh_scripts_path" "gh"
+echo "${WHITE}   Uninstalling ${BOLD}Gh Scripts${WHITE}...${RESET}"
+uninstall_scripts "$gh_scripts_path" "gh"
 echo
