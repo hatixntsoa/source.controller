@@ -66,6 +66,7 @@ uninstall_scripts() {
 		else
 			echo "${WHITE}Skipping ${LIGHT_BLUE}${BOLD}$script ${RESET}${WHITE}: Not executable."
 		fi
+		echo
 	done
 }
 

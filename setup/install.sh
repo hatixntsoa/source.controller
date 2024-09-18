@@ -64,6 +64,7 @@ install_scripts() {
 		else
 			echo "Skipping $script: Not executable."
 		fi
+		echo
 	done
 }
 
