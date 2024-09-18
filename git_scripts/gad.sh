@@ -55,19 +55,36 @@ usage() {
   echo "  $(basename "$0" .sh) [commit_message]"
   echo "  $(basename "$0" .sh)"
   echo
-  echo "Options:"
-  echo "  [file]            Path to a specific file to add and commit. If omitted, all changes are added."
-	echo
-  echo "  [commit_message]  Commit message to use. If no commit message is provided, an editor will open."
-  echo "                    The commit message can be enclosed in quotes (e.g., gad \"commit message\")"
-	echo "                    or written without quotes (e.g., gad commit message),"
-	echo "                    as long as it does not contain special characters."
-	echo
+  echo "${BOLD}Description:${RESET}"
+  echo "  This script simplifies the process of adding" 
+  echo "  and committing changes in a Git repository."
+  echo
+  echo "  It allows you to specify a file to add and provides" 
+  echo "  a way to commit changes with or without a commit message "
+  echo "  directly from the command line. " 
+  echo
+  echo "  If no file is specified, all changes are added."
+  echo "  If no commit message is provided, the default git editor" 
+  echo "  will open to allow for a detailed commit message."
+  echo
+  echo "${BOLD}Options:${RESET}"
+  echo "  [file]            Path to a specific file to add and commit."
+  echo "                    If omitted, all changes are added."
+  echo
+  echo "  [commit_message]  Commit message to use. If no commit message is provided, "
+  echo "                    the default git editor will open."
+  echo "                    The commit message can be enclosed in quotes " 
+  echo "                    (e.g., gad \"commit message\")"
+  echo "                    or written without quotes (e.g., gad commit message),"
+  echo "                    as long as it does not contain special characters."
+  echo
   echo "  --help            Display this help message."
   echo
-  echo "If no arguments are provided, all changes are added and committed with a message prompted in the editor."
+  echo " If no arguments are provided, all changes are added and committed"
+  echo " with a message prompted in the editor."
   exit 0
 }
+
 
 # Check if the current directory is a Git repository
 is_a_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)

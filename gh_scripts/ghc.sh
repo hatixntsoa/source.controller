@@ -12,6 +12,13 @@ usage() {
   echo "${BOLD}Usage:${RESET}"
   echo "  $(basename "$0" .sh) [repo_name] [visibility]"
   echo
+  echo "${BOLD}Description:${RESET}"
+  echo "  This script creates a new GitHub repository and optionally sets it as the remote"
+  echo "  for the current local Git repository. " 
+  echo "  If the current directory is a Git repository and does not" 
+  echo "  already have a remote, it will ask if you want to" 
+  echo "  create a new remote repository and push local commits to it."
+  echo
   echo "${BOLD}Options:${RESET}"
   echo "  [repo_name]      Name of the GitHub repository to create."
   echo "                   If omitted, the name of the current directory is used."
@@ -23,7 +30,7 @@ usage() {
   echo
   echo "  --help           Display this help message."
   echo
-  echo " If no arguments are provided, it uses the current directory name"
+  echo " If no arguments are provided, the script uses the current directory name"
   echo " as the repository name and creates a public repository."
   exit 0
 }
@@ -42,9 +49,7 @@ clean_repo() {
 }
 
 # Check if --help is the first argument
-if [ "$1" = "--help" ]; then
-  usage
-fi
+[ "$1" = "--help" ] && usage
 
 # Check if it is a git repo
 is_a_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)
