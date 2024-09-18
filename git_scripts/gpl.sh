@@ -56,13 +56,13 @@ usage() {
   echo "  $(basename "$0")"
   echo
   echo "${BOLD}Description:${RESET}"
-  echo "  This script simplifies the process of pushing" 
-  echo "  local commits to its remote Git repository."
+  echo "  This script simplifies the process of pulling" 
+  echo "  remote commits to local Git repository."
   echo
   echo "${BOLD}Options:${RESET}"
   echo "  --help            Display this help message."
   echo
-  echo "  No arguments are required. Just run the script to push changes."
+  echo "  No arguments are required. Just run the script to pull changes."
   exit 0
 }
 
@@ -87,7 +87,7 @@ if [ "$is_a_git_repo" = "true" ]; then
 
   # check if it has a remote to push
   if [ "$has_remote" ]; then
-    local is_remote_branch=$(git branch -r | grep "origin/$current_branch")
+    is_remote_branch=$(git branch -r | grep "origin/$current_branch")
 
     # check if the current branch has remote
     if [ -n "$is_remote_branch" ]; then
