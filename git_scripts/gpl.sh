@@ -53,7 +53,7 @@ fi
 # Usage function to display help
 usage() {
   echo "${BOLD}Usage:${RESET}"
-  echo "  $(basename "$0")"
+  echo "  $(basename "$0" .sh)"
   echo
   echo "${BOLD}Description:${RESET}"
   echo "  This script simplifies the process of pulling" 
