@@ -2,7 +2,7 @@
 
 # Define colors
 BOLD="\e[1m"
-WHITE="\e[37m"
+WHITE="\e[97m"
 RESET="\e[0m"
 
 # Check if the script is running on Android

@@ -1,10 +1,10 @@
 #!/bin/sh
 
 # Define colors
-BOLD="\033[1m"
-GREEN="\033[32m"
-WHITE="\033[97m"
-RESET="\033[0m"
+BOLD="\e[1m"
+RESET="\e[0m"
+WHITE="\e[97m"
+GREEN="\e[32m"
 
 # Function to display usage
 usage() {

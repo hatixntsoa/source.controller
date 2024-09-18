@@ -3,8 +3,8 @@
 # Define colors
 BOLD="\e[1m"
 RESET="\e[0m"
-LIGHT_BLUE="\e[34m"
-WHITE="\e[37m"
+LIGHT_BLUE="\e[94m"
+WHITE="\e[97m"
 GREEN="\e[32m"
 
 # Check if the script is running on Android
