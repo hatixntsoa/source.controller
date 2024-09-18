@@ -2,6 +2,7 @@
 
 # Define colors
 BOLD="\e[1m"
+RESET="\e[0m"
 
 # Check if the script is running on Android
 if [ -f "/system/build.prop" ]; then
