@@ -29,4 +29,3 @@ chmod +x setup/*.sh
 ```sh
 ./setup/install.sh
 ```
-___
