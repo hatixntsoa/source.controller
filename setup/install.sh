@@ -13,6 +13,18 @@ else
 	fi
 fi
 
+# this will check for sudo permission
+allow_sudo(){
+	if [ -n "$SUDO" ]; then
+		$SUDO -n true &>/dev/null
+		if [ $? -eq 1 ]; then
+			$SUDO echo && return 0 || return 1
+		else
+			return 0
+		fi
+	fi
+}
+
 # Get the binary path for linking
 binary_path=$(whereis sh | grep -o '/[^ ]*/bin' | head -n 1)
 
@@ -50,14 +62,8 @@ install_scripts() {
 
 # Install git scripts
 echo "Installing git scripts..."
-install_scripts "$git_scripts_path" "git"
+allow_sudo && install_scripts "$git_scripts_path" "git"
 
 # Install gh scripts
 echo "Installing gh scripts..."
-install_scripts "$gh_scripts_path" "gh"
-
-# Clean up temporary directory if created
-if [ -n "$temp_dir" ]; then
-	echo "Cleaning up..."
-	$SUDO rm -rf "$temp_dir"
-fi
+allow_sudo && install_scripts "$gh_scripts_path" "gh"
