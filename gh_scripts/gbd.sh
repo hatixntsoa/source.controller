@@ -30,6 +30,12 @@ usage() {
   exit 0
 }
 
+# Check if GitHub CLI is installed
+if ! gh --version >/dev/null 2>&1; then
+  echo "gh is not installed."
+  exit 1
+fi
+
 # Function to delete a branch
 delete_branch() {
   branch_name="$1"
