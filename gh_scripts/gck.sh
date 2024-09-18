@@ -115,9 +115,9 @@ if [ "$is_a_git_repo" = "true" ]; then
             git checkout -b "$user" >/dev/null 2>&1;
 
             # check for remote
-            if [ "$has_remote" ]; then
+            if [ "$has_remote" ] && [ "$gh_installed" = "true" ]; then
               check_new_remote_branch(){
-                printf "${BOLD}${WHITE}Add${GREEN} "$user"${WHITE} branch to ${LIGHT_BLUE}$repo_name ${WHITE} on GitHub ? (y/n) ";
+                printf "${BOLD}${WHITE}Add${GREEN} "$user"${WHITE} branch to ${LIGHT_BLUE}$repo_name ${WHITE}on GitHub ? (y/n) ";
                 read remote_branch
                 if [ "$remote_branch" = "y" ]; then
                   git push origin "$user";
