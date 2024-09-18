@@ -94,7 +94,7 @@ if [ "$is_a_git_repo" = "true" ]; then
         printf "${BOLD} New repository ${LIGHT_BLUE}$repo_name ${WHITE}on GitHub ... ${RESET}"
         gh repo create "$repo_name" --"$repo_visibility" &>/dev/null
         git remote add origin "git@github.com:$current_user/$repo_name.git"
-        printf "${BOLD}${GREEN}✓${RESET}\n"
+        printf "${BOLD}${GREEN} ${RESET}\n"
 
         check_push() {
           printf "${BOLD}${WHITE} Push local commits to ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
@@ -132,7 +132,7 @@ else
       printf "${BOLD} New repository ${LIGHT_BLUE}$repo_name ${WHITE}on GitHub ... ${RESET}"
       gh repo create "$repo_name" --"$repo_visibility" -c &>/dev/null
       mv "$repo_name/.git" . && rm -rf "$repo_name"
-      printf "${BOLD}${GREEN}✓${RESET}\n"
+      printf "${BOLD}${GREEN} ${RESET}\n"
     elif [ "$create_repo" = "n" ]; then
       check_local() {
         printf "${BOLD}${WHITE} Create ${GREEN}local ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
