@@ -32,6 +32,13 @@ binary_path=$(whereis sh | grep -o '/[^ ]*/bin' | head -n 1)
 git_scripts_path="$PWD/git_scripts"
 gh_scripts_path="$PWD/gh_scripts"
 
+# Define color codes
+BOLD="\e[1m"
+GREEN="\e[32m"
+WHITE="\e[97m"
+RESET="\e[0m"
+LIGHT_BLUE="\e[34m"
+
 # Function to extract script name without the .sh extension
 get_script_name() {
 	basename "$1" .sh
@@ -50,20 +57,23 @@ install_scripts() {
 			if [ -L "$symlink_path" ]; then
 				echo "$script_name is already installed."
 			else
-				echo "Installing $script_name..."
+				printf " ● Installing ${BOLD}${LIGHT_BLUE}$script_name${RESET}..."
 				$SUDO ln -s "$script" "$symlink_path"
-				echo "$script_name installed successfully."
+				printf "${BOLD}${GREEN} ${RESET}"
 			fi
 		else
 			echo "Skipping $script: Not executable."
 		fi
+		echo
 	done
 }
 
 # Install git scripts
-echo "Installing git scripts..."
+echo "${WHITE}- Installing ${BOLD}Git Scripts${WHITE}...${RESET}"
 allow_sudo && install_scripts "$git_scripts_path" "git"
+echo
 
 # Install gh scripts
-echo "Installing gh scripts..."
+echo "${WHITE}- Installing ${BOLD}Gh Scripts${WHITE}...${RESET}"
 allow_sudo && install_scripts "$gh_scripts_path" "gh"
+echo

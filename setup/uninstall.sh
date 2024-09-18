@@ -32,6 +32,14 @@ binary_path=$(whereis sh | grep -o '/[^ ]*/bin' | head -n 1)
 git_scripts_path="$PWD/git_scripts"
 gh_scripts_path="$PWD/gh_scripts"
 
+# Define color codes
+BOLD="\e[1m"
+RED="\e[31m"
+WHITE="\e[97m"
+RESET="\e[0m"
+GREEN="\e[32m"
+LIGHT_BLUE="\e[34m"
+
 # Function to extract script name without the .sh extension
 get_script_name() {
 	basename "$1" .sh
@@ -47,23 +55,27 @@ uninstall_scripts() {
 			script_name=$(get_script_name "$script")
 			link_path="$binary_path/$script_name"
 
+			printf " ● Uninstalling ${BOLD}${LIGHT_BLUE}$script_name${RESET}..."
+
 			if [ -L "$link_path" ]; then
-				echo "Uninstalling $script_name..."
 				$SUDO rm "$link_path"
-				echo "$script_name uninstalled successfully."
+				printf "${BOLD}${RED} ${RESET}"
 			else
-				echo "$script_name is not installed."
+				printf "${BOLD}${RED}Not Installed ${RESET}"
 			fi
 		else
 			echo "Skipping $script: Not executable."
 		fi
+		echo
 	done
 }
 
 # Uninstall git scripts
-echo "Uninstalling git scripts..."
+echo "${WHITE}- Uninstalling ${BOLD}Git Scripts${WHITE}...${RESET}"
 allow_sudo && uninstall_scripts "$git_scripts_path" "git"
+echo
 
 # Uninstall gh scripts
-echo "Uninstalling gh scripts..."
+echo "${WHITE}- Uninstalling ${BOLD}Gh Scripts${WHITE}...${RESET}"
 allow_sudo && uninstall_scripts "$gh_scripts_path" "gh"
+echo
