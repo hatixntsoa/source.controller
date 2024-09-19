@@ -45,7 +45,7 @@ delete_local_repo() {
 		local repo_source=$(git rev-parse --show-toplevel)
 		printf "${BOLD} Deleting ${GREEN}local ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}... ${RESET}"
 		rm -rf "$repo_source/.git"
-		echo "${BOLD}${GREEN}✓${RESET}"
+		echo "${BOLD}${GREEN} ${WHITE}"
 	elif [ "$delete_local_repo" = "n" ]; then
 		return 0
 	else
@@ -61,7 +61,7 @@ delete_repo() {
 		printf "${BOLD} Deleting repository ${LIGHT_BLUE}$repo_name ${WHITE}on GitHub ... ${RESET}"
 		gh repo delete "$repo_name" --yes &>/dev/null
 		git remote remove origin
-		echo "${BOLD}${GREEN}✓${RESET}"
+		echo "${BOLD}${GREEN} ${WHITE}"
 		delete_local_repo
 	elif [ "$delete_repo" = "n" ]; then
 		return 0
