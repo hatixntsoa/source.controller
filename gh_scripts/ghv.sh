@@ -7,6 +7,29 @@ LIGHT_BLUE=$'\033[94m'
 WHITE=$'\033[97m'
 RESET=$'\033[0m'
 
+# Check if the script is running on Android
+if [ -f "/system/build.prop" ]; then
+	SUDO=""
+else
+	# Check for sudo availability on other Unix-like systems
+	if command -v sudo >/dev/null 2>&1; then
+		SUDO="sudo"
+	else
+		echo "Sorry, sudo is not available."
+		exit 1
+	fi
+fi
+
+# this will check for sudo permission
+allow_sudo() {
+	if [ -n "$SUDO" ]; then
+		$SUDO -n true 2>/dev/null
+		if [ $? -ne 0 ]; then
+			$SUDO -v
+		fi
+	fi
+}
+
 # Function to display usage
 usage() {
 	echo "${BOLD}Usage:${RESET}"
@@ -79,28 +102,37 @@ if [ "$is_a_git_repo" = "true" ]; then
 			fi
 		else
 			if [ "$has_remote" ]; then
-				isPrivate=$(gh repo view "$repo_owner/$repo_name" --json isPrivate --jq '.isPrivate')
+				# prompt for sudo
+				# password if required
+				allow_sudo
 
-				if [ "$1" = "show" ]; then
-					visibility=$([ "$isPrivate" = "true" ] && echo "private" || echo "public")
-					echo "${BOLD} This repo ${LIGHT_BLUE}$repo_name ${WHITE}is ${GREEN}$visibility"
+				# Check for internet connectivity to GitHub
+				if $SUDO ping -c 1 github.com &>/dev/null; then
+					isPrivate=$(gh repo view "$repo_owner/$repo_name" --json isPrivate --jq '.isPrivate')
+
+					if [ "$1" = "show" ]; then
+						visibility=$([ "$isPrivate" = "true" ] && echo "private" || echo "public")
+						echo "${BOLD} This repo ${LIGHT_BLUE}$repo_name ${WHITE}is ${GREEN}$visibility"
+					else
+						new_visibility=$([ "$isPrivate" = "true" ] && echo "public" || echo "private")
+						toggle_visibility() {
+							printf "${BOLD}${WHITE} Make ${LIGHT_BLUE}$repo_name ${WHITE}repo ${GREEN}$new_visibility ${WHITE}? (y/n) "
+							read -r change_visibility
+							if [ "$change_visibility" = "y" ]; then
+								# toggle visibility
+								printf "${BOLD} Changing repo visibility to ${GREEN}$new_visibility ${WHITE}... "
+								gh repo edit "$repo_owner/$repo_name" --visibility "$new_visibility" &>/dev/null
+								echo "${BOLD}${GREEN} ${WHITE}"
+							elif [ "$change_visibility" = "n" ]; then
+								return 0
+							else
+								toggle_visibility
+							fi
+						}
+						toggle_visibility
+					fi
 				else
-					new_visibility=$([ "$isPrivate" = "true" ] && echo "public" || echo "private")
-					toggle_visibility() {
-						printf "${BOLD}${WHITE} Make ${LIGHT_BLUE}$repo_name ${WHITE}repo ${GREEN}$new_visibility ${WHITE}? (y/n) "
-						read -r change_visibility
-						if [ "$change_visibility" = "y" ]; then
-							# toggle visibility
-							printf "${BOLD} Changing repo visibility to ${GREEN}$new_visibility ${WHITE}... "
-							gh repo edit "$repo_owner/$repo_name" --visibility "$new_visibility" &>/dev/null
-							echo "${BOLD}${GREEN} ${WHITE}"
-						elif [ "$change_visibility" = "n" ]; then
-							return 0
-						else
-							toggle_visibility
-						fi
-					}
-					toggle_visibility
+					echo "${BOLD} ■■▶ This won't work, you are offline !${RESET}"
 				fi
 			else
 				echo "${BOLD} The local repo ${LIGHT_BLUE}$repo_name ${WHITE}is owned by ${GREEN}$repo_owner"
