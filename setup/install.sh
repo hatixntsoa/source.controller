@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Check if the script is running on Android
 if [ -f "/system/build.prop" ]; then
@@ -14,7 +14,7 @@ else
 fi
 
 # this will check for sudo permission
-allow_sudo(){
+allow_sudo() {
 	if [ -n "$SUDO" ]; then
 		$SUDO -n true 2>/dev/null
 		if [ $? -ne 0 ]; then
@@ -31,11 +31,11 @@ git_scripts_path="$PWD/git_scripts"
 gh_scripts_path="$PWD/gh_scripts"
 
 # Define color codes
-BOLD="\e[1m"
-GREEN="\e[32m"
-WHITE="\e[97m"
-RESET="\e[0m"
-LIGHT_BLUE="\e[34m"
+BOLD=$'\033[1m'
+GREEN=$'\033[32m'
+WHITE=$'\033[97m'
+RESET=$'\033[0m'
+LIGHT_BLUE=$'\033[34m'
 
 # Function to extract script name without the .sh extension
 get_script_name() {

@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 # Define colors
-BOLD="\e[1m"
-RESET="\e[0m"
-LIGHT_BLUE="\e[94m"
-WHITE="\e[97m"
-GREEN="\e[32m"
+BOLD=$'\033[1m'
+RESET=$'\033[0m'
+LIGHT_BLUE=$'\033[94m'
+WHITE=$'\033[97m'
+GREEN=$'\033[32m'
 
 # Check if the script is running on Android
 if [ -f "/system/build.prop" ]; then
