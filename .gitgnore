@@ -1,4 +1,0 @@
-# from now on that all the script are pushed,
-# we can ignore the change from them,
-# especially when changing permission during installation
-**/*.sh
