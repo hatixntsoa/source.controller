@@ -2,11 +2,14 @@
 
 ### Prerequisites
   - **Packages** : ``git`` ``gh``
+
+  ``GitHub CLI Guide`` :   [Gh Config](config/gh_config.md)  
+  ``Git Guide`` :   [Git Config](config/git_config.md)  
   > git and github cli should be installed  
     and they need to be well configured to work
 
-``GitHub CLI Guide`` :   [Gh Config](config/gh_config.md)  
-``Git Guide`` :   [Git Config](config/git_config.md)  
+  - **Shell** : ``bash`` or ``zsh``
+  - **Font** : ``Nerd Font``
 
 ___
 
