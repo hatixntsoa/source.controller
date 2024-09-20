@@ -26,9 +26,12 @@ allow_sudo() {
 # Get the binary path for linking
 binary_path=$(whereis sh | grep -o '/[^ ]*/bin' | head -n 1)
 
+# Get the source directory of the repo
+repo_source=$(git rev-parse --show-toplevel)
+
 # Define paths to script directories
-git_scripts_path="$PWD/git_scripts"
-gh_scripts_path="$PWD/gh_scripts"
+git_scripts_path="$repo_source/git_scripts"
+gh_scripts_path="$repo_source/gh_scripts"
 
 # Define color codes
 BOLD=$'\033[1m'
