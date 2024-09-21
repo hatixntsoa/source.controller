@@ -73,7 +73,9 @@ usage() {
 is_a_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)
 
 # Check if it has a remote
-has_remote=$(git remote -v)
+if git remote -v >/dev/null 2>&1; then
+  has_remote=true
+fi
 
 if [ "$has_remote" ]; then
 	repo_url=$(git config --get remote.origin.url)

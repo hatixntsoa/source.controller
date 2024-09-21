@@ -106,10 +106,13 @@ delete_repo() {
 # Check if it is a git repo
 is_a_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)
 
-if [ "$is_a_git_repo" = "true" ]; then
-	has_remote=$(git remote -v)
+# Check if it has a remote
+if git remote -v >/dev/null 2>&1; then
+  has_remote=true
+fi
 
-	if [ -n "$has_remote" ]; then
+if [ "$is_a_git_repo" = "true" ]; then
+	if [ "$has_remote" ]; then
 		repo_url=$(git config --get remote.origin.url)
 		current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
 		repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
