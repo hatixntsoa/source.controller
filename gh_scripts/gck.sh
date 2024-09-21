@@ -218,8 +218,8 @@ if [ "$is_a_git_repo" = "true" ]; then
 			git checkout "$1"
 		fi
 	else
-		echo "${BOLD} ■■▶ Usage : gck branch or gck (switch default branch)" && br
+		echo "${BOLD} ■■▶ Usage : gck branch or gck (switch default branch)"
 	fi
 else
-	echo "${BOLD} ■■▶ This won't work, you are not in a git repo !" && br
+	echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
 fi
