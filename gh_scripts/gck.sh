@@ -30,19 +30,6 @@ allow_sudo() {
 	fi
 }
 
-# Check if the script is running on Android
-if [ -f "/system/build.prop" ]; then
-	SUDO=""
-else
-	# Check for sudo availability on other Unix-like systems
-	if command -v sudo >/dev/null 2>&1; then
-		SUDO="sudo"
-	else
-		echo "Sorry, sudo is not available."
-		exit 1
-	fi
-fi
-
 # Setup git
 setup_git() {
 	echo "${BOLD}Installing Git...${RESET}"
