@@ -44,6 +44,16 @@ setup_git() {
 	fi
 }
 
+# this will check for sudo permission
+allow_sudo() {
+	if [ -n "$SUDO" ]; then
+		$SUDO -n true 2>/dev/null
+		if [ $? -ne 0 ]; then
+			$SUDO -v
+		fi
+	fi
+}
+
 # Check if Git is installed
 if ! git --version >/dev/null 2>&1; then
 	echo "Git is not installed."
@@ -56,7 +66,7 @@ usage() {
 	echo "  $(basename "$0" .sh)"
 	echo
 	echo "${BOLD}Description:${RESET}"
-	echo "  This script simplifies the process of pushing"
+	echo "  This script simplifies the pr2>/dev/nullocess of pushing"
 	echo "  local commits to its remote Git repository."
 	echo
 	echo "${BOLD}Options:${RESET}"
@@ -69,6 +79,16 @@ usage() {
 # Check if --help is the first argument
 [ "$1" = "--help" ] && usage
 
+# prompt for sudo
+# password if required
+allow_sudo
+
+# Check for internet connectivity to GitHub
+if ! $SUDO ping -c 1 github.com &>/dev/null; then
+	echo "${BOLD} ■■▶ This won't work, you are offline !${RESET}"
+	exit 0
+fi
+
 # Check if the current directory is a Git repository
 is_a_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)
 
@@ -77,18 +97,18 @@ if git remote -v >/dev/null 2>&1; then
   has_remote=true
 fi
 
-if [ "$has_remote" ]; then
-	repo_url=$(git config --get remote.origin.url)
-	repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
-else
-	repo_name=$(basename "$(git rev-parse --show-toplevel)")
-fi
-
 if [ "$is_a_git_repo" = "true" ]; then
 	current_branch=$(git branch | awk '/\*/ {print $2}')
 
+	if [ -n "$has_remote" ]; then
+		repo_url=$(git config --get remote.origin.url)
+		repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
+	else
+		repo_name=$(basename "$(git rev-parse --show-toplevel)")
+	fi
+
 	# check if it has a remote to push
-	if [ "$has_remote" ]; then
+	if [ -n "$has_remote" ]; then
 		git push origin $current_branch
 	else
 		echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${WHITE}has ${RED}no remote"
