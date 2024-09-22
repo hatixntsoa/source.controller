@@ -78,12 +78,6 @@ clean_repo() {
 # password if required
 allow_sudo
 
-# Check for internet connectivity to GitHub
-if ! $SUDO ping -c 1 github.com &>/dev/null; then
-	echo "${BOLD} ■■▶ This won't work, you are offline !${RESET}"
-	exit 0
-fi
-
 # Check if it is a git repo
 is_a_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)
 
@@ -159,32 +153,50 @@ if [ "$is_a_git_repo" = "true" ]; then
 		check_set_repo
 	fi
 else
-	check_create_repo() {
-		printf "${BOLD}${WHITE} Create ${GREEN}$repo_visibility ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
-		read create_repo
-		if [ "$create_repo" = "y" ]; then
-			# Create the repo & clone it locally
-			printf "${BOLD} New repository ${LIGHT_BLUE}$repo_name ${WHITE}on GitHub ... ${RESET}"
-			gh repo create "$repo_name" --"$repo_visibility" -c &>/dev/null
-			mv "$repo_name/.git" . && rm -rf "$repo_name"
-			printf "${BOLD}${GREEN} ${RESET}\n"
-		elif [ "$create_repo" = "n" ]; then
-			check_local() {
-				printf "${BOLD}${WHITE} Create ${GREEN}local ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
-				read create_local
+	# Check for internet connectivity to GitHub
+	if ! $SUDO ping -c 1 github.com &>/dev/null; then
+		echo "${BOLD} ■■▶ Sorry, you are offline !${RESET}"
+		check_local() {
+			printf "${BOLD}${WHITE} Create ${GREEN}local ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
+			read create_local
 
-				if [ "$create_local" = "y" ]; then
-					git init &>/dev/null
-				elif [ "$create_local" = "n" ]; then
-					return 0
-				else
-					check_local
-				fi
-			}
-			check_local
-		else
-			check_create_repo
-		fi
-	}
-	check_create_repo
+			if [ "$create_local" = "y" ]; then
+				git init &>/dev/null
+			elif [ "$create_local" = "n" ]; then
+				return 0
+			else
+				check_local
+			fi
+		}
+		check_local
+	else
+		check_create_repo() {
+			printf "${BOLD}${WHITE} Create ${GREEN}$repo_visibility ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
+			read create_repo
+			if [ "$create_repo" = "y" ]; then
+				# Create the repo & clone it locally
+				printf "${BOLD} New repository ${LIGHT_BLUE}$repo_name ${WHITE}on GitHub ... ${RESET}"
+				gh repo create "$repo_name" --"$repo_visibility" -c &>/dev/null
+				mv "$repo_name/.git" . && rm -rf "$repo_name"
+				printf "${BOLD}${GREEN} ${RESET}\n"
+			elif [ "$create_repo" = "n" ]; then
+				check_local() {
+					printf "${BOLD}${WHITE} Create ${GREEN}local ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
+					read create_local
+
+					if [ "$create_local" = "y" ]; then
+						git init &>/dev/null
+					elif [ "$create_local" = "n" ]; then
+						return 0
+					else
+						check_local
+					fi
+				}
+				check_local
+			else
+				check_create_repo
+			fi
+		}
+		check_create_repo
+	fi
 fi
