@@ -67,8 +67,8 @@ fi
 # Function to sanitize the repository name
 clean_repo() {
 	repo_name="$1"
-	# Replace any characters that are not alphanumeric or hyphen with underscore
-	printf "%s" "$repo_name" | sed -E 's/[^a-zA-Z0-9-]/_/g'
+	# Replace spaces with underscores
+  printf "%s" "$repo_name" | sed -E 's/ /_/g'
 }
 
 # Check if --help is the first argument
