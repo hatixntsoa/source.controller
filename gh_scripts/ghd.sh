@@ -64,12 +64,6 @@ fi
 # password if required
 allow_sudo
 
-# Check for internet connectivity to GitHub
-if ! $SUDO ping -c 1 github.com &>/dev/null; then
-	echo "${BOLD} ■■▶ This won't work, you are offline !${RESET}"
-	exit 0
-fi
-
 # Function to delete local repo
 delete_local_repo() {
 	printf "${BOLD}${WHITE} Delete ${GREEN}local ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
@@ -108,23 +102,28 @@ is_a_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)
 
 # Check if it has a remote
 if git remote -v >/dev/null 2>&1; then
-  has_remote=true
+	has_remote=true
 fi
 
 if [ "$is_a_git_repo" = "true" ]; then
 	if [ "$has_remote" ]; then
-		repo_url=$(git config --get remote.origin.url)
-		current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
-		repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
+		if $SUDO ping -c 1 github.com &>/dev/null; then
+			repo_url=$(git config --get remote.origin.url)
+			current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
+			repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
 
-		if [ "$repo_owner" != "$current_user" ]; then
-			echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo!${RESET}"
+			if [ "$repo_owner" != "$current_user" ]; then
+				echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo!${RESET}"
+			else
+				repo_name=$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')
+				isPrivate=$(gh repo view "$repo_name" --json isPrivate --jq '.isPrivate')
+				repo_visibility=$([ "$isPrivate" = "true" ] && echo "private" || echo "public")
+
+				delete_repo
+			fi
 		else
-			repo_name=$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')
-			isPrivate=$(gh repo view "$repo_name" --json isPrivate --jq '.isPrivate')
-			repo_visibility=$([ "$isPrivate" = "true" ] && echo "private" || echo "public")
-
-			delete_repo
+			repo_name=$(basename "$(git rev-parse --show-toplevel)")
+			delete_local_repo
 		fi
 	else
 		repo_name=$(basename "$(git rev-parse --show-toplevel)")
