@@ -100,9 +100,12 @@ delete_repo() {
 # Check if it is a git repo
 is_a_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)
 
+# Initialize has_remote variable
+has_remote=false
+
 # Check if it has a remote
-if git remote -v >/dev/null 2>&1; then
-	has_remote=true
+if git remote -v | grep -q .; then
+  has_remote=true
 fi
 
 if [ "$is_a_git_repo" = "true" ]; then

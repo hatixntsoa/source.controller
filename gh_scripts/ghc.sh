@@ -81,8 +81,11 @@ allow_sudo
 # Check if it is a git repo
 is_a_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)
 
+# Initialize has_remote variable
+has_remote=false
+
 # Check if it has a remote
-if git remote -v >/dev/null 2>&1; then
+if git remote -v | grep -q .; then
   has_remote=true
 fi
 
@@ -110,7 +113,7 @@ fi
 repo_name=$(clean_repo "$repo")
 
 if [ "$is_a_git_repo" = "true" ]; then
-	if [ -n "$has_remote" ]; then
+	if [ "$has_remote" ]; then
 		printf "${BOLD}■■▶ This repo already has a remote on GitHub!${RESET}\n"
 	else
 		current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)

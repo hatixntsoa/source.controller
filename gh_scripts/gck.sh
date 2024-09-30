@@ -97,8 +97,11 @@ allow_sudo
 # Check if the current directory is a Git repository
 is_a_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)
 
+# Initialize has_remote variable
+has_remote=false
+
 # Check if it has a remote
-if git remote -v >/dev/null 2>&1; then
+if git remote -v | grep -q .; then
   has_remote=true
 fi
 
