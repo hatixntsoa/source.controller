@@ -89,16 +89,25 @@ if ! $SUDO ping -c 1 github.com &>/dev/null; then
 	exit 0
 fi
 
-# Check if the current directory is a Git repository
-is_a_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)
-
-# Check if it has a remote
-if git remote -v >/dev/null 2>&1; then
-  has_remote=true
+# Check if it is a git repo and suppress errors
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    is_a_git_repo=true
+else
+    is_a_git_repo=false
 fi
 
-if [ "$is_a_git_repo" = "true" ]; then
-	if [ -n "$has_remote" ]; then
+# Initialize has_remote variable
+has_remote=false
+
+# Check if it has a remote only if it's a git repo
+if [ "$is_a_git_repo" = true ]; then
+    if git remote -v | grep -q .; then
+        has_remote=true
+    fi
+fi
+
+if [ "$is_a_git_repo" ]; then
+	if [ "$has_remote" ]; then
 		repo_url=$(git config --get remote.origin.url)
 		repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
 	else
@@ -108,7 +117,7 @@ if [ "$is_a_git_repo" = "true" ]; then
 	current_branch=$(git branch | awk '/\*/ {print $2}')
 
 	# check if it has a remote to push
-	if [ -n "$has_remote" ]; then
+	if [ "$has_remote" ]; then
 		is_remote_branch=$(git branch -r | grep "origin/$current_branch")
 
 		# check if the current branch has remote
