@@ -64,9 +64,9 @@ fi
 
 # Check if it is a git repo and suppress errors
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    is_a_git_repo=true
+  is_a_git_repo=true
 else
-    is_a_git_repo=false
+  is_a_git_repo=false
 fi
 
 # Initialize has_remote variable
@@ -74,14 +74,15 @@ has_remote=false
 
 # Check if it has a remote only if it's a git repo
 if [ "$is_a_git_repo" = true ]; then
-    if git remote -v | grep -q .; then
-        has_remote=true
-    fi
+	if git remote -v | grep -q .; then
+		has_remote=true
+	fi
 fi
 
 if [ "$is_a_git_repo" = "true" ]; then
 	current_branch=$(git branch | awk '/\*/ {print $2}')
 	default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+	current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
 
 	if [ -z "$default_branch" ]; then
 		default_branch=$(git config --get init.defaultBranch)
@@ -123,15 +124,21 @@ if [ "$is_a_git_repo" = "true" ]; then
 					fi
 
 					if [ "$has_remote" ]; then
-						is_remote_branch=$(git branch -r | grep "origin/$1")
-						if [ -n "$is_remote_branch" ]; then
-							# prompt for sudo
-							# password if required
-							allow_sudo
+						repo_url=$(git config --get remote.origin.url)
+						repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
 
-							# Check for internet connectivity to GitHub
-							if $SUDO ping -c 1 github.com &>/dev/null; then
-								check_delete_remote_branch
+						# check if we are not the owner of the repo
+						if [ "$repo_owner" == "$current_user" ]; then
+							is_remote_branch=$(git branch -r | grep "origin/$1")
+							if [ -n "$is_remote_branch" ]; then
+								# prompt for sudo
+								# password if required
+								allow_sudo
+
+								# Check for internet connectivity to GitHub
+								if $SUDO ping -c 1 github.com &>/dev/null; then
+									check_delete_remote_branch
+								fi
 							fi
 						fi
 					fi	
@@ -173,16 +180,22 @@ if [ "$is_a_git_repo" = "true" ]; then
 					git checkout "$default_branch" >/dev/null 2>&1
 
 					if [ "$has_remote" ]; then
-						is_remote_branch=$(git branch -r | grep "origin/$current_branch")
-						
-						if [ -n "$is_remote_branch" ]; then
-							# prompt for sudo
-							# password if required
-							allow_sudo
+						repo_url=$(git config --get remote.origin.url)
+						repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
 
-							# Check for internet connectivity to GitHub
-							if $SUDO ping -c 1 github.com &>/dev/null; then
-								check_delete_remote_branch
+						# check if we are not the owner of the repo
+						if [ "$repo_owner" == "$current_user" ]; then
+							is_remote_branch=$(git branch -r | grep "origin/$current_branch")
+							
+							if [ -n "$is_remote_branch" ]; then
+								# prompt for sudo
+								# password if required
+								allow_sudo
+
+								# Check for internet connectivity to GitHub
+								if $SUDO ping -c 1 github.com &>/dev/null; then
+									check_delete_remote_branch
+								fi
 							fi
 						fi
 					fi

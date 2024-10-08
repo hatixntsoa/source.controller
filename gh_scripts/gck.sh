@@ -118,6 +118,8 @@ if [ "$is_a_git_repo" = "true" ]; then
 		default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
 		repo_url=$(git config --get remote.origin.url)
 		repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
+		repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
+		current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
 	else
 		default_branch=$(git config --get init.defaultBranch)
 		repo_name=$(basename "$(git rev-parse --show-toplevel)")
@@ -153,11 +155,14 @@ if [ "$is_a_git_repo" = "true" ]; then
 								fi
 							}
 
-							# Check for internet connectivity to GitHub
-							if $SUDO ping -c 1 github.com &>/dev/null; then
-								check_new_remote_branch
-							else
-								echo "${BOLD} ■■▶ Cannot push to remote branch, you are offline !${RESET}"
+							# check if we are not the owner of the repo
+							if [ "$repo_owner" == "$current_user" ]; then
+								# Check for internet connectivity to GitHub
+								if $SUDO ping -c 1 github.com &>/dev/null; then
+									check_new_remote_branch
+								else
+									echo "${BOLD} ■■▶ Cannot push to remote branch, you are offline !${RESET}"
+								fi
 							fi
 						fi
 					elif [ "$branch" = "n" ]; then
@@ -196,11 +201,14 @@ if [ "$is_a_git_repo" = "true" ]; then
 							fi
 						}
 
-						# Check for internet connectivity to GitHub
-						if $SUDO ping -c 1 github.com &>/dev/null; then
-							check_new_remote_branch
-						else
-							echo "${BOLD} ■■▶ Cannot push to remote branch, you are offline !${RESET}"
+						# check if we are not the owner of the repo
+						if [ "$repo_owner" == "$current_user" ]; then
+							# Check for internet connectivity to GitHub
+							if $SUDO ping -c 1 github.com &>/dev/null; then
+								check_new_remote_branch
+							else
+								echo "${BOLD} ■■▶ Cannot push to remote branch, you are offline !${RESET}"
+							fi
 						fi
 					fi
 				elif [ "$branch" = "n" ]; then
