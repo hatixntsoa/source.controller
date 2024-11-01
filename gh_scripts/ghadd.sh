@@ -120,7 +120,7 @@ is_a_github_user() {
 
 # ghadd functions
 if [ "$is_a_git_repo" = "true" ]; then
-	if [ "$has_remote" ]; then
+	if [ "$has_remote" = "true" ]; then
 		if [ $# -eq 0 ]; then
 			echo "${BOLD} ■■▶ Specify the username of the new collaborator !"
 		elif [ $# -gt 0 ]; then

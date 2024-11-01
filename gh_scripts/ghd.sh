@@ -115,7 +115,7 @@ if [ "$is_a_git_repo" = true ]; then
 fi
 
 if [ "$is_a_git_repo" = "true" ]; then
-	if [ "$has_remote" ]; then
+	if [ "$has_remote" = "true" ]; then
 		if $SUDO ping -c 1 github.com &>/dev/null; then
 			repo_url=$(git config --get remote.origin.url)
 			current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)

@@ -119,7 +119,7 @@ fi
 repo_name=$(clean_repo "$repo")
 
 if [ "$is_a_git_repo" = "true" ]; then
-	if [ "$has_remote" ]; then
+	if [ "$has_remote" = "true" ]; then
 		printf "${BOLD}■■▶ This repo already has a remote on GitHub!${RESET}\n"
 	else
 		current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)

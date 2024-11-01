@@ -123,7 +123,7 @@ if [ "$is_a_git_repo" = "true" ]; then
 						git checkout $default_branch >/dev/null 2>&1
 					fi
 
-					if [ "$has_remote" ]; then
+					if [ "$has_remote" = "true" ]; then
 						repo_url=$(git config --get remote.origin.url)
 						repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
 
@@ -179,7 +179,7 @@ if [ "$is_a_git_repo" = "true" ]; then
 
 					git checkout "$default_branch" >/dev/null 2>&1
 
-					if [ "$has_remote" ]; then
+					if [ "$has_remote" = "true" ]; then
 						repo_url=$(git config --get remote.origin.url)
 						repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
 

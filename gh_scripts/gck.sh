@@ -114,7 +114,7 @@ fi
 if [ "$is_a_git_repo" = "true" ]; then
 	current_branch=$(git branch | awk '/\*/ {print $2}')
 
-	if [ "$has_remote" ]; then
+	if [ "$has_remote" = "true" ]; then
 		default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
 		repo_url=$(git config --get remote.origin.url)
 		repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
@@ -187,7 +187,7 @@ if [ "$is_a_git_repo" = "true" ]; then
 					git checkout -b "$new_branch" >/dev/null 2>&1
 
 					# check for remote
-					if [ "$has_remote" ]; then
+					if [ "$has_remote" = "true" ]; then
 						check_new_remote_branch() {
 							printf "${BOLD}${WHITE}Add${GREEN} "$new_branch"${WHITE} branch to ${LIGHT_BLUE}$repo_name ${WHITE} on GitHub ? (y/n) "
 							read remote_branch

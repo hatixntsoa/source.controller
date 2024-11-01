@@ -94,7 +94,7 @@ if [ "$is_a_git_repo" = "true" ]; then
 	if [ "$#" -eq 0 ] || [ "$1" = "show" ] || [ "$1" = "owner" ]; then
 		current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
 
-		if [ "$has_remote" ]; then
+		if [ "$has_remote" = "true" ]; then
 			repo_url=$(git config --get remote.origin.url)
 			repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
 			repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
@@ -106,13 +106,13 @@ if [ "$is_a_git_repo" = "true" ]; then
 		if [ "$repo_owner" != "$current_user" ] && [ "$1" != "owner" ]; then
 			echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo !"
 		elif [ "$1" = "owner" ]; then
-			if [ "$has_remote" ]; then
+			if [ "$has_remote" = "true" ]; then
 				echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${WHITE}is owned by ${GREEN}$repo_owner"
 			else
 				echo "${BOLD} The local repo ${LIGHT_BLUE}$repo_name ${WHITE}is owned by ${GREEN}$repo_owner"
 			fi
 		else
-			if [ "$has_remote" ]; then
+			if [ "$has_remote" = "true" ]; then
 				# prompt for sudo
 				# password if required
 				allow_sudo

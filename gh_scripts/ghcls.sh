@@ -118,7 +118,7 @@ is_a_github_user() {
 
 # ghcls functions
 if [ "$is_a_git_repo" = "true" ]; then
-	if [ "$has_remote" ]; then
+	if [ "$has_remote" = "true" ]; then
 		current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
 		repo_url=$(git config --get remote.origin.url)
 		repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
