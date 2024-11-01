@@ -109,7 +109,7 @@ fi
 if [ "$is_a_git_repo" = "true" ]; then
 	current_branch=$(git branch | awk '/\*/ {print $2}')
 
-	if [ "$has_remote" ]; then
+	if [ "$has_remote" = "true" ]; then
 		repo_url=$(git config --get remote.origin.url)
 		repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
 	else
@@ -117,7 +117,7 @@ if [ "$is_a_git_repo" = "true" ]; then
 	fi
 
 	# check if it has a remote to push
-	if [ "$has_remote" ]; then
+	if [ "$has_remote" = "true" ]; then
 		git push origin $current_branch
 	else
 		echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${WHITE}has ${RED}no remote"
