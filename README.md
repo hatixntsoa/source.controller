@@ -46,6 +46,7 @@ ls -l $(whereis sh | grep -o '/[^ ]*/bin' | head -n 1) | grep 'git_gh' | awk '{p
 | `ghd`    | Delete an existing repository |
 | `ghv`    | View and toggle an existing repository's visibility |
 | `gck`    | Create a new branch locally and remotely |
+| `gcln`   | Clone a repository |
 | `gbd`    | Delete an existing branch locally and remotely |
 | `ghadd`  | Add a new collaborator to the repository by username |
 | `ghdel`  | Remove an existing collaborator from the repository by username |
