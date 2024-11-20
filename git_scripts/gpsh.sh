@@ -1,127 +1,70 @@
 #!/bin/bash
 
-# Define colors
-BOLD=$'\033[1m'
-RED=$'\033[31m'
-LIGHT_BLUE=$'\033[94m'
-WHITE=$'\033[97m'
-RESET=$'\033[0m'
+function gpsh {
+	if is_a_git_repo; then
+		current_branch=$(git branch | awk '/\*/ {print $2}')
 
-# Check if the script is running on Android
-if [ -f "/system/build.prop" ]; then
-	SUDO=""
-else
-	# Check for sudo availability on other Unix-like systems
-	if command -v sudo >/dev/null 2>&1; then
-		SUDO="sudo"
-	else
-		echo "Sorry, sudo is not available."
-		exit 1
-	fi
-fi
-
-# Setup git
-setup_git() {
-	echo "${BOLD}Installing Git...${RESET}"
-
-	if command -v apt-get &>/dev/null; then
-		$SUDO apt-get update -y >/dev/null 2>&1
-		$SUDO apt-get install -y git >/dev/null 2>&1
-	elif command -v yum &>/dev/null; then
-		$SUDO yum update -y >/dev/null 2>&1
-		$SUDO yum install -y git >/dev/null 2>&1
-	elif command -v dnf &>/dev/null; then
-		$SUDO dnf update -y >/dev/null 2>&1
-		$SUDO dnf install -y git >/dev/null 2>&1
-	elif command -v pacman &>/dev/null; then
-		$SUDO pacman -Syu --noconfirm git >/dev/null 2>&1
-	elif command -v zypper &>/dev/null; then
-		$SUDO zypper update >/dev/null 2>&1
-		$SUDO zypper install -y git >/dev/null 2>&1
-	else
-		echo "No supported package manager found. Please install Git manually."
-		exit 1
-	fi
-}
-
-# this will check for sudo permission
-allow_sudo() {
-	if [ -n "$SUDO" ]; then
-		$SUDO -n true 2>/dev/null
-		if [ $? -ne 0 ]; then
-			$SUDO -v
+		if has_remote; then
+			repo_url=$(git config --get remote.origin.url)
+			repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
+		else
+			repo_name=$(basename "$(git rev-parse --show-toplevel)")
 		fi
+
+		# check if it has a remote to push
+		if has_remote; then
+			git push origin $current_branch
+		else
+			echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${WHITE}has ${RED}no remote"
+		fi
+	else
+		echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
 	fi
 }
 
-# Check if Git is installed
-if ! git --version >/dev/null 2>&1; then
-	echo "Git is not installed."
-	setup_git
-fi
+# Resolve the full path to the script's directory
+REAL_PATH="$(dirname "$(readlink -f "$0")")"
+PARENT_DIR="$(dirname "$REAL_PATH")"
+CATEGORY="git_scripts"
 
-# Usage function to display help
-usage() {
-	echo "${BOLD}Usage:${RESET}"
-	echo "  $(basename "$0" .sh)"
-	echo
-	echo "${BOLD}Description:${RESET}"
-	echo "  This script simplifies the pr2>/dev/nullocess of pushing"
-	echo "  local commits to its remote Git repository."
-	echo
-	echo "${BOLD}Options:${RESET}"
-	echo "  --help            Display this help message."
-	echo
-	echo "  No arguments are required. Just run the script to push changes."
-	exit 0
-}
+HELPS_DIR="$PARENT_DIR/helps/$CATEGORY"
+HELP_FILE="$(basename "$0" .sh)_help.sh"
 
-# Check if --help is the first argument
-[ "$1" = "--help" ] && usage
+UTILS_DIR="$PARENT_DIR/utils"
+
+# Import necessary variables and functions
+source "$UTILS_DIR/check_connection.sh"
+source "$UTILS_DIR/check_remote.sh"
+source "$UTILS_DIR/check_git.sh"
+source "$UTILS_DIR/setup_git.sh"
+source "$UTILS_DIR/check_sudo.sh"
+source "$UTILS_DIR/colors.sh"
+source "$UTILS_DIR/usage.sh"
+
+# Import help file
+source "$HELPS_DIR/$HELP_FILE"
 
 # prompt for sudo
 # password if required
 allow_sudo
 
+# Setting up git
+setup_git
+
+# Usage function to display help
+function usage {
+  show_help "Usage" "${gpsh_arguments[@]}"
+	show_help "Description" "${gpsh_descriptions[@]}"
+	show_help "Options" "${gpsh_options[@]}"
+	show_help "${gpsh_extras[@]}"
+  exit 0
+}
+
+# Check if --help is the first argument
+[ "$1" = "--help" ] && usage
+
 # Check for internet connectivity to GitHub
-if ! $SUDO ping -c 1 github.com &>/dev/null; then
-	echo "${BOLD} ■■▶ This won't work, you are offline !${RESET}"
-	exit 0
-fi
+check_connection
 
-# Check if it is a git repo and suppress errors
-if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  is_a_git_repo=true
-else
-  is_a_git_repo=false
-fi
-
-# Initialize has_remote variable
-has_remote=false
-
-# Check if it has a remote only if it's a git repo
-if [ "$is_a_git_repo" = true ]; then
-	if git remote -v | grep -q .; then
-		has_remote=true
-	fi
-fi
-
-if [ "$is_a_git_repo" = "true" ]; then
-	current_branch=$(git branch | awk '/\*/ {print $2}')
-
-	if [ "$has_remote" = "true" ]; then
-		repo_url=$(git config --get remote.origin.url)
-		repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
-	else
-		repo_name=$(basename "$(git rev-parse --show-toplevel)")
-	fi
-
-	# check if it has a remote to push
-	if [ "$has_remote" = "true" ]; then
-		git push origin $current_branch
-	else
-		echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${WHITE}has ${RED}no remote"
-	fi
-else
-	echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
-fi
+# Call gpsh function
+gpsh

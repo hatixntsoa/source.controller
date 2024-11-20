@@ -1,71 +1,86 @@
 #!/bin/bash
 
-# Define colors
-BOLD=$'\033[1m'
-GREEN=$'\033[32m'
-LIGHT_BLUE=$'\033[94m'
-WHITE=$'\033[97m'
-RESET=$'\033[0m'
+function ghd {
+	if is_a_git_repo; then
+		if has_remote; then
+			if connected; then
+				repo_url=$(git config --get remote.origin.url)
+				current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
+				repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
 
-# Check if the script is running on Android
-if [ -f "/system/build.prop" ]; then
-	SUDO=""
-else
-	# Check for sudo availability on other Unix-like systems
-	if command -v sudo >/dev/null 2>&1; then
-		SUDO="sudo"
-	else
-		echo "Sorry, sudo is not available."
-		exit 1
-	fi
-fi
+				if [ "$repo_owner" != "$current_user" ]; then
+					echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo!${RESET}"
+				else
+					repo_name=$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')
+					isPrivate=$(gh repo view "$repo_name" --json isPrivate --jq '.isPrivate')
+					repo_visibility=$([ "$isPrivate" = "true" ] && echo "private" || echo "public")
 
-# this will check for sudo permission
-allow_sudo() {
-	if [ -n "$SUDO" ]; then
-		$SUDO -n true 2>/dev/null
-		if [ $? -ne 0 ]; then
-			$SUDO -v
+					delete_repo
+				fi
+			else
+				repo_name=$(basename "$(git rev-parse --show-toplevel)")
+				delete_local_repo
+			fi
+		else
+			repo_name=$(basename "$(git rev-parse --show-toplevel)")
+			delete_local_repo
 		fi
+	else
+		echo "${BOLD} ■■▶ This won't work, you are not in a git repo!${RESET}"
 	fi
 }
 
-# Function to display usage
-usage() {
-	echo "${BOLD}Usage:${RESET}"
-	echo "  $(basename "$0" .sh)"
-	echo
-	echo "${BOLD}Description:${RESET}"
-	echo "  Deletes a local and/or remote GitHub repository."
-	echo
-	echo "${BOLD}Options:${RESET}"
-	echo "  --help           Display this help message."
-	echo
-	exit 0
-}
+# Resolve the full path to the script's directory
+REAL_PATH="$(dirname "$(readlink -f "$0")")"
+PARENT_DIR="$(dirname "$REAL_PATH")"
+CATEGORY="gh_scripts"
 
-# Function to sanitize the repository name
-clean_repo() {
-	repo_name="$1"
-	# Replace spaces with underscores
-  printf "%s" "$repo_name" | sed -E 's/ /_/g'
-}
+HELPS_DIR="$PARENT_DIR/helps/$CATEGORY"
+HELP_FILE="$(basename "$0" .sh)_help.sh"
 
-# Check if GitHub CLI is installed
-if ! gh --version >/dev/null 2>&1; then
-	echo "gh is not installed."
-	exit 1
-fi
+UTILS_DIR="$PARENT_DIR/utils"
 
-# Check if --help is the first argument
-[ "$1" = "--help" ] && usage
+# Import necessary variables and functions
+source "$UTILS_DIR/check_connection.sh"
+source "$UTILS_DIR/check_git.sh"
+source "$UTILS_DIR/check_gh.sh"
+source "$UTILS_DIR/setup_git.sh"
+source "$UTILS_DIR/check_remote.sh"
+source "$UTILS_DIR/check_sudo.sh"
+source "$UTILS_DIR/check_user.sh"
+source "$UTILS_DIR/clean_repo.sh"
+source "$UTILS_DIR/colors.sh"
+source "$UTILS_DIR/usage.sh"
+
+# Import help file
+source "$HELPS_DIR/$HELP_FILE"
 
 # prompt for sudo
 # password if required
 allow_sudo
 
+# Setting up git
+setup_git
+
+# Check gh
+check_gh
+
+# Usage function to display help
+function usage {
+  show_help "Usage" "${ghd_arguments[@]}"
+	show_help "Description" "${ghd_descriptions[@]}"
+	show_help "Options" "${ghd_options[@]}"
+  exit 0
+}
+
+# Check if --help is the first argument
+[ "$1" = "--help" ] && usage
+
+# Check for internet connectivity to GitHub
+check_connection
+
 # Function to delete local repo
-delete_local_repo() {
+function delete_local_repo {
 	printf "${BOLD}${WHITE} Delete ${GREEN}local ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
 	read delete_local_repo
 	if [ "$delete_local_repo" = "y" ]; then
@@ -81,7 +96,7 @@ delete_local_repo() {
 }
 
 # Function to delete GitHub repo
-delete_repo() {
+function delete_repo {
 	printf "${BOLD}${WHITE} Delete ${GREEN}$repo_visibility ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
 	read delete_repo
 	if [ "$delete_repo" = "y" ]; then
@@ -97,47 +112,5 @@ delete_repo() {
 	fi
 }
 
-# Check if it is a git repo and suppress errors
-if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    is_a_git_repo=true
-else
-    is_a_git_repo=false
-fi
-
-# Initialize has_remote variable
-has_remote=false
-
-# Check if it has a remote only if it's a git repo
-if [ "$is_a_git_repo" = true ]; then
-    if git remote -v | grep -q .; then
-        has_remote=true
-    fi
-fi
-
-if [ "$is_a_git_repo" = "true" ]; then
-	if [ "$has_remote" = "true" ]; then
-		if $SUDO ping -c 1 github.com &>/dev/null; then
-			repo_url=$(git config --get remote.origin.url)
-			current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
-			repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
-
-			if [ "$repo_owner" != "$current_user" ]; then
-				echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo!${RESET}"
-			else
-				repo_name=$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')
-				isPrivate=$(gh repo view "$repo_name" --json isPrivate --jq '.isPrivate')
-				repo_visibility=$([ "$isPrivate" = "true" ] && echo "private" || echo "public")
-
-				delete_repo
-			fi
-		else
-			repo_name=$(basename "$(git rev-parse --show-toplevel)")
-			delete_local_repo
-		fi
-	else
-		repo_name=$(basename "$(git rev-parse --show-toplevel)")
-		delete_local_repo
-	fi
-else
-	echo "${BOLD} ■■▶ This won't work, you are not in a git repo!${RESET}"
-fi
+# Call ghd function
+ghd

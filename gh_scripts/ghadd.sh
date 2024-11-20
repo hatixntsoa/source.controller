@@ -1,156 +1,91 @@
 #!/bin/bash
 
-# Define colors
-BOLD=$'\033[1m'
-RED=$'\033[31m'
-GREEN=$'\033[32m'
-LIGHT_BLUE=$'\033[94m'
-WHITE=$'\033[97m'
-RESET=$'\033[0m'
+function ghadd {
+	if is_a_git_repo; then
+		if has_remote; then
+			if [ $# -eq 0 ]; then
+				echo "${BOLD} ■■▶ Specify the username of the new collaborator !"
+			elif [ $# -gt 0 ]; then
+				current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
+				repo_url=$(git config --get remote.origin.url)
+				repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
+				repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
 
-# Check if the script is running on Android
-if [ -f "/system/build.prop" ]; then
-	SUDO=""
-else
-	# Check for sudo availability on other Unix-like systems
-	if command -v sudo >/dev/null 2>&1; then
-		SUDO="sudo"
-	else
-		echo "Sorry, sudo is not available."
-		exit 1
-	fi
-fi
+				# check if we are not the owner of the repo
+				if [ "$repo_owner" != "$current_user" ]; then
+					echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo !"
+				else
+					# Loop through each collaborator username provided as an argument
+					for collaborator in "$@"; do
+						printf "${BOLD} Inviting ${LIGHT_BLUE}$collaborator ${WHITE}to collaborate on ${LIGHT_BLUE}$repo_name${WHITE} "
 
-# this will check for sudo permission
-allow_sudo() {
-	if [ -n "$SUDO" ]; then
-		$SUDO -n true 2>/dev/null
-		if [ $? -ne 0 ]; then
-			$SUDO -v
+						# Check if the collaborator exists on GitHub
+						if is_a_github_user "$collaborator"; then
+							# Add collaborator using gh api
+							gh api --method=PUT "repos/$current_user/$repo_name/collaborators/$collaborator" >/dev/null 2>&1
+							echo "${BOLD}${GREEN} ${WHITE}"
+						else
+							echo "${BOLD}${RED}✘ ${WHITE}"
+						fi
+					done
+				fi
+			fi
+		else
+			echo "${BOLD} ■■▶ This repo has no remote on GitHub !"
 		fi
+	else
+		echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
 	fi
 }
 
-# Function to display usage
-usage() {
-	echo "${BOLD}Usage:${RESET}"
-	echo "  $(basename "$0" .sh) [collaborator_username...]"
-	echo
-	echo "${BOLD}Description:${RESET}"
-	echo "  This script interacts with a GitHub repository"
-	echo "  associated with the current local Git repository."
-	echo
-	echo "  It allows you to invite new collaborators to the repository."
-	echo
-	echo "${BOLD}Options:${RESET}"
-	echo "  [collaborator_username]  GitHub username(s) of the collaborators to invite."
-	echo "                           Multiple usernames can be provided, separated by spaces."
-	echo
-	echo "  --help                   Display this help message."
-	echo
-	echo "  If no usernames are provided, the script will"
-	echo "  prompt you to specify at least one."
-	exit 0
-}
+# Resolve the full path to the script's directory
+REAL_PATH="$(dirname "$(readlink -f "$0")")"
+PARENT_DIR="$(dirname "$REAL_PATH")"
+CATEGORY="gh_scripts"
 
-# Check if GitHub CLI is installed
-if ! gh --version >/dev/null 2>&1; then
-	echo "gh is not installed."
-	exit 1
-fi
+HELPS_DIR="$PARENT_DIR/helps/$CATEGORY"
+HELP_FILE="$(basename "$0" .sh)_help.sh"
 
-# Check if --help is the first argument
-[ "$1" = "--help" ] && usage
+UTILS_DIR="$PARENT_DIR/utils"
+
+# Import necessary variables and functions
+source "$UTILS_DIR/check_connection.sh"
+source "$UTILS_DIR/check_git.sh"
+source "$UTILS_DIR/check_gh.sh"
+source "$UTILS_DIR/setup_git.sh"
+source "$UTILS_DIR/check_remote.sh"
+source "$UTILS_DIR/check_sudo.sh"
+source "$UTILS_DIR/check_user.sh"
+source "$UTILS_DIR/colors.sh"
+source "$UTILS_DIR/usage.sh"
+
+# Import help file
+source "$HELPS_DIR/$HELP_FILE"
 
 # prompt for sudo
 # password if required
 allow_sudo
 
-# Check for internet connectivity to GitHub
-if ! $SUDO ping -c 1 github.com &>/dev/null; then
-	echo "${BOLD} ■■▶ This won't work, you are offline !${RESET}"
-	exit 0
-fi
+# Setting up git
+setup_git
 
-# Check if it is a git repo and suppress errors
-if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    is_a_git_repo=true
-else
-    is_a_git_repo=false
-fi
+# Check gh
+check_gh
 
-# Initialize has_remote variable
-has_remote=false
-
-# Check if it has a remote only if it's a git repo
-if [ "$is_a_git_repo" = true ]; then
-    if git remote -v | grep -q .; then
-        has_remote=true
-    fi
-fi
-
-# check if the collaborator is a GitHub user
-is_a_github_user() {
-	username="$1"
-
-	# Check if username is empty
-	if [ -z "$username" ]; then
-		return 1
-	fi
-
-	# Build the API URL
-	url="https://api.github.com/users/$username"
-
-	# Use wget to capture the response (redirecting output to a variable)
-	# wget by default outputs content, so we use the -q (quiet) option to suppress it
-	# -O- option specifies that the downloaded content should be written
-	# to standard output (stdout) instead of a file.
-	response=$(wget -qO- --no-check-certificate "$url")
-
-	# Check if there is no output
-	# meaning it is not found
-	if [ -z "$response" ]; then
-		# Not Found
-		return 1
-	else
-		# Found
-		return 0
-	fi
+# Usage function to display help
+function usage {
+  show_help "Usage" "${ghadd_arguments[@]}"
+	show_help "Description" "${ghadd_descriptions[@]}"
+	show_help "Options" "${ghadd_options[@]}"
+	show_extra "${ghadd_extras[@]}"
+  exit 0
 }
 
-# ghadd functions
-if [ "$is_a_git_repo" = "true" ]; then
-	if [ "$has_remote" = "true" ]; then
-		if [ $# -eq 0 ]; then
-			echo "${BOLD} ■■▶ Specify the username of the new collaborator !"
-		elif [ $# -gt 0 ]; then
-			current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
-			repo_url=$(git config --get remote.origin.url)
-			repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
-			repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
+# Check if --help is the first argument
+[ "$1" = "--help" ] && usage
 
-			# check if we are not the owner of the repo
-			if [ "$repo_owner" != "$current_user" ]; then
-				echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo !"
-			else
-				# Loop through each collaborator username provided as an argument
-				for collaborator in "$@"; do
-					printf "${BOLD} Inviting ${LIGHT_BLUE}$collaborator ${WHITE}to collaborate on ${LIGHT_BLUE}$repo_name${WHITE} "
+# Check for internet connectivity to GitHub
+check_connection
 
-					# Check if the collaborator exists on GitHub
-					if is_a_github_user "$collaborator"; then
-						# Add collaborator using gh api
-						gh api --method=PUT "repos/$current_user/$repo_name/collaborators/$collaborator" >/dev/null 2>&1
-						echo "${BOLD}${GREEN} ${WHITE}"
-					else
-						echo "${BOLD}${RED}✘ ${WHITE}"
-					fi
-				done
-			fi
-		fi
-	else
-		echo "${BOLD} ■■▶ This repo has no remote on GitHub !"
-	fi
-else
-	echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
-fi
+# Call ghadd function
+ghadd "$@"

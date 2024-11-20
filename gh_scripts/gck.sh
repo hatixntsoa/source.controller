@@ -1,153 +1,89 @@
 #!/bin/bash
 
-# Define colors
-BOLD=$'\033[1m'
-RESET=$'\033[0m'
-LIGHT_BLUE=$'\033[94m'
-WHITE=$'\033[97m'
-GREEN=$'\033[32m'
+function gck {
+	if is_a_git_repo; then
+		current_branch=$(git branch | awk '/\*/ {print $2}')
 
-# Check if the script is running on Android
-if [ -f "/system/build.prop" ]; then
-	SUDO=""
-else
-	# Check for sudo availability on other Unix-like systems
-	if command -v sudo >/dev/null 2>&1; then
-		SUDO="sudo"
-	else
-		echo "Sorry, sudo is not available."
-		exit 1
-	fi
-fi
-
-# this will check for sudo permission
-allow_sudo() {
-	if [ -n "$SUDO" ]; then
-		$SUDO -n true 2>/dev/null
-		if [ $? -ne 0 ]; then
-			$SUDO -v
-		fi
-	fi
-}
-
-# Setup git
-setup_git() {
-	echo "${BOLD}Installing Git...${RESET}"
-
-	if command -v apt-get &>/dev/null; then
-		$SUDO apt-get update -y >/dev/null 2>&1
-		$SUDO apt-get install -y git >/dev/null 2>&1
-	elif command -v yum &>/dev/null; then
-		$SUDO yum update -y >/dev/null 2>&1
-		$SUDO yum install -y git >/dev/null 2>&1
-	elif command -v dnf &>/dev/null; then
-		$SUDO dnf update -y >/dev/null 2>&1
-		$SUDO dnf install -y git >/dev/null 2>&1
-	elif command -v pacman &>/dev/null; then
-		$SUDO pacman -Syu --noconfirm git >/dev/null 2>&1
-	elif command -v zypper &>/dev/null; then
-		$SUDO zypper update >/dev/null 2>&1
-		$SUDO zypper install -y git >/dev/null 2>&1
-	else
-		echo "No supported package manager found. Please install Git manually."
-		exit 1
-	fi
-}
-
-# Check if Git is installed
-if ! git --version >/dev/null 2>&1; then
-	echo "Git is not installed."
-	setup_git
-fi
-
-# Check if GitHub CLI is installed
-if gh --version >/dev/null 2>&1; then
-	gh_installed=true
-fi
-
-# Usage function to display help
-usage() {
-	echo "${BOLD}Usage:${RESET}"
-	echo "  $(basename "$0" .sh) [branch_name]"
-	echo
-	echo "${BOLD}Description:${RESET}"
-	echo "  This script helps manage Git branches"
-	echo "  by switching to the default branch,"
-	echo "  or creating new branches"
-	echo "  locally and remotely if needed."
-	echo
-	echo "${BOLD}Options:${RESET}"
-	echo "  [branch_name]      Switch to the specified branch"
-	echo "                     or create it if it doesn't exist."
-	echo
-	echo "  --help             Display this help message."
-	echo
-	echo "  No arguments means to switch to the default branch,"
-	echo "  or prompt to create a new branch named after the current unix user."
-	exit 0
-}
-
-# Check if --help is the first argument
-[ "$1" = "--help" ] && usage
-
-# prompt for sudo
-# password if required
-allow_sudo
-
-# Check if it is a git repo and suppress errors
-if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    is_a_git_repo=true
-else
-    is_a_git_repo=false
-fi
-
-# Initialize has_remote variable
-has_remote=false
-
-# Check if it has a remote only if it's a git repo
-if [ "$is_a_git_repo" = true ]; then
-    if git remote -v | grep -q .; then
-        has_remote=true
-    fi
-fi
-
-if [ "$is_a_git_repo" = "true" ]; then
-	current_branch=$(git branch | awk '/\*/ {print $2}')
-
-	if [ "$has_remote" = "true" ]; then
-		default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
-		repo_url=$(git config --get remote.origin.url)
-		repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
-		repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
-		current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
-	else
-		default_branch=$(git config --get init.defaultBranch)
-		repo_name=$(basename "$(git rev-parse --show-toplevel)")
-	fi
-
-	if [ -z "$default_branch" ]; then
-		default_branch=$(git config --get init.defaultBranch)
-	fi
-
-	if [ $# -eq 0 ]; then
-		if [ "$current_branch" != "$default_branch" ]; then
-			git checkout "$default_branch"
+		if has_remote; then
+			default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+			repo_url=$(git config --get remote.origin.url)
+			repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
+			repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
+			current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
 		else
-			user="$(whoami)"
-			if ! git rev-parse --verify "$user" >/dev/null 2>&1; then
+			default_branch=$(git config --get init.defaultBranch)
+			repo_name=$(basename "$(git rev-parse --show-toplevel)")
+		fi
+
+		if [ -z "$default_branch" ]; then
+			default_branch=$(git config --get init.defaultBranch)
+		fi
+
+		if [ $# -eq 0 ]; then
+			if [ "$current_branch" != "$default_branch" ]; then
+				git checkout "$default_branch"
+			else
+				user="$(whoami)"
+				if ! git rev-parse --verify "$user" >/dev/null 2>&1; then
+					check_new_branch() {
+						printf "${BOLD}${WHITE}New branch${GREEN} "$user"${WHITE} ? (y/n) "
+						read branch
+						if [ "$branch" = "y" ]; then
+							git checkout -b "$user" >/dev/null 2>&1
+
+							# check for remote
+							if has_remote && gh_installed; then
+								check_new_remote_branch() {
+									printf "${BOLD}${WHITE}Add${GREEN} "$user"${WHITE} branch to ${LIGHT_BLUE}$repo_name ${WHITE}on GitHub ? (y/n) "
+									read remote_branch
+									if [ "$remote_branch" = "y" ]; then
+										git push origin "$user"
+									elif [ "$remote_branch" = "n" ]; then
+										return 0
+									else
+										check_new_remote_branch
+									fi
+								}
+
+								# check if we are not the owner of the repo
+								if [ "$repo_owner" == "$current_user" ]; then
+									# Check for internet connectivity to GitHub
+									if $SUDO ping -c 1 github.com &>/dev/null; then
+										check_new_remote_branch
+									else
+										echo "${BOLD} ■■▶ Cannot push to remote branch, you are offline !${RESET}"
+									fi
+								fi
+							fi
+						elif [ "$branch" = "n" ]; then
+							return 0
+						else
+							check_new_branch
+						fi
+					}
+					check_new_branch
+				else
+					git checkout "$user"
+				fi
+			fi
+		elif [ $# -eq 1 ]; then
+			# check if the branch doesn't exist yet
+			if ! git rev-parse --verify "$1" >/dev/null 2>&1; then
+				new_branch="$1"
 				check_new_branch() {
-					printf "${BOLD}${WHITE}New branch${GREEN} "$user"${WHITE} ? (y/n) "
+					printf "${BOLD}${WHITE}New branch${GREEN} "$new_branch"${WHITE} ? (y/n) "
 					read branch
 					if [ "$branch" = "y" ]; then
-						git checkout -b "$user" >/dev/null 2>&1
+						git checkout -b "$new_branch" >/dev/null 2>&1
 
 						# check for remote
-						if [ "$has_remote" ] && [ "$gh_installed" = "true" ]; then
+						if has_remote; then
 							check_new_remote_branch() {
-								printf "${BOLD}${WHITE}Add${GREEN} "$user"${WHITE} branch to ${LIGHT_BLUE}$repo_name ${WHITE}on GitHub ? (y/n) "
+								printf "${BOLD}${WHITE}Add${GREEN} "$new_branch"${WHITE} branch to ${LIGHT_BLUE}$repo_name ${WHITE} on GitHub ? (y/n) "
 								read remote_branch
+								echo ${RESET}
 								if [ "$remote_branch" = "y" ]; then
-									git push origin "$user"
+									git push origin "$new_branch"
 								elif [ "$remote_branch" = "n" ]; then
 									return 0
 								else
@@ -173,57 +109,60 @@ if [ "$is_a_git_repo" = "true" ]; then
 				}
 				check_new_branch
 			else
-				git checkout "$user"
+				git checkout "$1"
 			fi
-		fi
-	elif [ $# -eq 1 ]; then
-		# check if the branch doesn't exist yet
-		if ! git rev-parse --verify "$1" >/dev/null 2>&1; then
-			new_branch="$1"
-			check_new_branch() {
-				printf "${BOLD}${WHITE}New branch${GREEN} "$new_branch"${WHITE} ? (y/n) "
-				read branch
-				if [ "$branch" = "y" ]; then
-					git checkout -b "$new_branch" >/dev/null 2>&1
-
-					# check for remote
-					if [ "$has_remote" = "true" ]; then
-						check_new_remote_branch() {
-							printf "${BOLD}${WHITE}Add${GREEN} "$new_branch"${WHITE} branch to ${LIGHT_BLUE}$repo_name ${WHITE} on GitHub ? (y/n) "
-							read remote_branch
-							echo ${RESET}
-							if [ "$remote_branch" = "y" ]; then
-								git push origin "$new_branch"
-							elif [ "$remote_branch" = "n" ]; then
-								return 0
-							else
-								check_new_remote_branch
-							fi
-						}
-
-						# check if we are not the owner of the repo
-						if [ "$repo_owner" == "$current_user" ]; then
-							# Check for internet connectivity to GitHub
-							if $SUDO ping -c 1 github.com &>/dev/null; then
-								check_new_remote_branch
-							else
-								echo "${BOLD} ■■▶ Cannot push to remote branch, you are offline !${RESET}"
-							fi
-						fi
-					fi
-				elif [ "$branch" = "n" ]; then
-					return 0
-				else
-					check_new_branch
-				fi
-			}
-			check_new_branch
 		else
-			git checkout "$1"
+			echo "${BOLD} ■■▶ Usage : gck branch or gck (switch default branch)"
 		fi
 	else
-		echo "${BOLD} ■■▶ Usage : gck branch or gck (switch default branch)"
+		echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
 	fi
-else
-	echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
-fi
+}
+
+# Resolve the full path to the script's directory
+REAL_PATH="$(dirname "$(readlink -f "$0")")"
+PARENT_DIR="$(dirname "$REAL_PATH")"
+CATEGORY="gh_scripts"
+
+HELPS_DIR="$PARENT_DIR/helps/$CATEGORY"
+HELP_FILE="$(basename "$0" .sh)_help.sh"
+
+UTILS_DIR="$PARENT_DIR/utils"
+
+# Import necessary variables and functions
+source "$UTILS_DIR/check_connection.sh"
+source "$UTILS_DIR/check_remote.sh"
+source "$UTILS_DIR/check_git.sh"
+source "$UTILS_DIR/check_gh.sh"
+source "$UTILS_DIR/setup_git.sh"
+source "$UTILS_DIR/check_sudo.sh"
+source "$UTILS_DIR/colors.sh"
+source "$UTILS_DIR/usage.sh"
+
+# Import help file
+source "$HELPS_DIR/$HELP_FILE"
+
+# prompt for sudo
+# password if required
+allow_sudo
+
+# Setting up git
+setup_git
+
+# Usage function to display help
+function usage {
+  show_help "Usage" "${gck_arguments[@]}"
+	show_help "Description" "${gck_descriptions[@]}"
+	show_help "Options" "${gck_options[@]}"
+	show_extra "${gck_extras[@]}"
+  exit 0
+}
+
+# Check if --help is the first argument
+[ "$1" = "--help" ] && usage
+
+# Check for internet connectivity to GitHub
+check_connection
+
+# Call gck function
+gck "$@"

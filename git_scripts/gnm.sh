@@ -1,88 +1,60 @@
 #!/bin/bash
 
-# Define colors
-BOLD=$'\033[1m'
-WHITE=$'\033[97m'
-RESET=$'\033[0m'
+function gnm {
+	if is_a_git_repo; then
+		current_branch=$(git branch | awk '/\*/ {print $2}')
 
-# Check if the script is running on Android
-if [ -f "/system/build.prop" ]; then
-	SUDO=""
-else
-	# Check for sudo availability on other Unix-like systems
-	if command -v sudo >/dev/null 2>&1; then
-		SUDO="sudo"
+		if [ $# -eq 1 ]; then
+			git branch -M $current_branch "$1"
+			cv
+		elif [ $# -eq 0 ]; then
+			echo "${BOLD}${WHITE} ■■▶ Please pass the new name of '$current_branch' branch as argument "
+		else
+			echo "${BOLD}${WHITE} ■■▶ Usage : gnm new_name_of_the_branch"
+		fi
 	else
-		echo "Sorry, sudo is not available."
-		exit 1
-	fi
-fi
-
-# Setup git
-setup_git() {
-	echo "${BOLD}Installing Git...${RESET}"
-
-	if command -v apt-get &>/dev/null; then
-		$SUDO apt-get update -y >/dev/null 2>&1
-		$SUDO apt-get install -y git >/dev/null 2>&1
-	elif command -v yum &>/dev/null; then
-		$SUDO yum update -y >/dev/null 2>&1
-		$SUDO yum install -y git >/dev/null 2>&1
-	elif command -v dnf &>/dev/null; then
-		$SUDO dnf update -y >/dev/null 2>&1
-		$SUDO dnf install -y git >/dev/null 2>&1
-	elif command -v pacman &>/dev/null; then
-		$SUDO pacman -Syu --noconfirm git >/dev/null 2>&1
-	elif command -v zypper &>/dev/null; then
-		$SUDO zypper update >/dev/null 2>&1
-		$SUDO zypper install -y git >/dev/null 2>&1
-	else
-		echo "No supported package manager found. Please install Git manually."
-		exit 1
+		echo "${BOLD}${WHITE} ■■▶ This won't work, you are not in a git repo !"
 	fi
 }
 
-# Check if Git is installed
-if ! git --version >/dev/null 2>&1; then
-	echo "Git is not installed."
-	setup_git
-fi
+# Resolve the full path to the script's directory
+REAL_PATH="$(dirname "$(readlink -f "$0")")"
+PARENT_DIR="$(dirname "$REAL_PATH")"
+CATEGORY="git_scripts"
+
+HELPS_DIR="$PARENT_DIR/helps/$CATEGORY"
+HELP_FILE="$(basename "$0" .sh)_help.sh"
+
+UTILS_DIR="$PARENT_DIR/utils"
+
+# Import necessary variables and functions
+source "$UTILS_DIR/check_git.sh"
+source "$UTILS_DIR/setup_git.sh"
+source "$UTILS_DIR/check_sudo.sh"
+source "$UTILS_DIR/colors.sh"
+source "$UTILS_DIR/usage.sh"
+
+# Import help file
+source "$HELPS_DIR/$HELP_FILE"
+
+# prompt for sudo
+# password if required
+allow_sudo
+
+# Setting up git
+setup_git
 
 # Usage function to display help
-usage() {
-	echo "${BOLD}Usage:${RESET}"
-	echo "  $(basename "$0" .sh) [new_branch_name]"
-	echo
-	echo "${BOLD}Description:${RESET}"
-	echo "  This script renames the current branch"
-	echo "  to the specified new branch name in a Git repository."
-	echo
-	echo "${BOLD}Options:${RESET}"
-	echo "  --help            Display this help message."
-	echo
-	echo "${BOLD}Examples:${RESET}"
-	echo "  $(basename "$0" .sh) new_branch_name"
-	echo "      Renames the current branch to 'new_branch_name'."
-	exit 0
+function usage {
+  show_help "Usage" "${gnm_arguments[@]}"
+	show_help "Description" "${gnm_descriptions[@]}"
+	show_help "Options" "${gnm_options[@]}"
+	show_help "Examples" "${gnm_extras[@]}"
+  exit 0
 }
 
 # Check if --help is the first argument
 [ "$1" = "--help" ] && usage
 
-# Check if the current directory is a Git repository
-is_a_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)
-
-if [ "$is_a_git_repo" = "true" ]; then
-	current_branch=$(git branch | awk '/\*/ {print $2}')
-
-	if [ $# -eq 1 ]; then
-		git branch -M $current_branch "$1"
-		cv
-	elif [ $# -eq 0 ]; then
-		echo "${BOLD}${WHITE} ■■▶ Please pass the new name of '$current_branch' branch as argument "
-	else
-		echo "${BOLD}${WHITE} ■■▶ Usage : gnm new_name_of_the_branch"
-	fi
-else
-	echo "${BOLD}${WHITE} ■■▶ This won't work, you are not in a git repo !"
-fi
+# Call gnm function
+gnm "$@"

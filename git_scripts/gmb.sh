@@ -1,96 +1,65 @@
 #!/bin/bash
 
-# Define colors
-BOLD=$'\033[1m'
-WHITE=$'\033[97m'
-RESET=$'\033[0m'
-
-# Check if the script is running on Android
-if [ -f "/system/build.prop" ]; then
-	SUDO=""
-else
-	# Check for sudo availability on other Unix-like systems
-	if command -v sudo >/dev/null 2>&1; then
-		SUDO="sudo"
+function gmb {
+	if is_a_git_repo; then
+		current_branch=$(git branch | awk '/\*/ {print $2}')
+		if [ $# -eq 1 ]; then
+			# check if the branch doesn't exist
+			if ! git rev-parse --verify "$1" >/dev/null 2>&1; then
+				echo "${BOLD} ■■▶ Fatal ! $1 is a Non Existing branch "
+			else
+				if [ "$current_branch" = "$1" ]; then
+					echo "${BOLD} ■■▶ Fatal ! Cannot Merge Identical Branch "
+				else
+					git merge "$1"
+				fi
+			fi
+		elif [ $# -eq 0 ]; then
+			echo "${BOLD} ■■▶ Fatal ! Specify the Branch to merge to $current_branch"
+		fi
 	else
-		echo "Sorry, sudo is not available."
-		exit 1
-	fi
-fi
-
-# Setup git
-setup_git() {
-	echo "${BOLD}Installing Git...${RESET}"
-
-	if command -v apt-get &>/dev/null; then
-		$SUDO apt-get update -y >/dev/null 2>&1
-		$SUDO apt-get install -y git >/dev/null 2>&1
-	elif command -v yum &>/dev/null; then
-		$SUDO yum update -y >/dev/null 2>&1
-		$SUDO yum install -y git >/dev/null 2>&1
-	elif command -v dnf &>/dev/null; then
-		$SUDO dnf update -y >/dev/null 2>&1
-		$SUDO dnf install -y git >/dev/null 2>&1
-	elif command -v pacman &>/dev/null; then
-		$SUDO pacman -Syu --noconfirm git >/dev/null 2>&1
-	elif command -v zypper &>/dev/null; then
-		$SUDO zypper update >/dev/null 2>&1
-		$SUDO zypper install -y git >/dev/null 2>&1
-	else
-		echo "No supported package manager found. Please install Git manually."
-		exit 1
+		echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
 	fi
 }
 
-# Check if Git is installed
-if ! git --version >/dev/null 2>&1; then
-	echo "Git is not installed."
-	setup_git
-fi
+# Resolve the full path to the script's directory
+REAL_PATH="$(dirname "$(readlink -f "$0")")"
+PARENT_DIR="$(dirname "$REAL_PATH")"
+CATEGORY="git_scripts"
+
+HELPS_DIR="$PARENT_DIR/helps/$CATEGORY"
+HELP_FILE="$(basename "$0" .sh)_help.sh"
+
+UTILS_DIR="$PARENT_DIR/utils"
+
+# Import necessary variables and functions
+source "$UTILS_DIR/check_git.sh"
+source "$UTILS_DIR/setup_git.sh"
+source "$UTILS_DIR/check_sudo.sh"
+source "$UTILS_DIR/colors.sh"
+source "$UTILS_DIR/usage.sh"
+
+# Import help file
+source "$HELPS_DIR/$HELP_FILE"
+
+# prompt for sudo
+# password if required
+allow_sudo
+
+# Setting up git
+setup_git
 
 # Usage function to display help
-usage() {
-	echo "${BOLD}Usage:${RESET}"
-	echo "  $(basename "$0" .sh) [branch]"
-	echo
-	echo "${BOLD}Description:${RESET}"
-	echo "  This script merges the specified branch into the"
-	echo "  current branch in a Git repository."
-	echo "  It checks if the specified branch exists"
-	echo "  and ensures that the current branch"
-	echo "  is different from the target branch before merging."
-	echo
-	echo "${BOLD}Options:${RESET}"
-	echo "  --help            Display this help message."
-	echo
-	echo "${BOLD}Examples:${RESET}"
-	echo "  $(basename "$0" .sh) feature-branch"
-	echo "      Merges 'feature-branch' into the current branch."
-	exit 0
+function usage {
+  show_help "Usage" "${gmb_arguments[@]}"
+	show_help "Description" "${gmb_descriptions[@]}"
+	show_help "Options" "${gmb_options[@]}"
+	show_help "Examples" "${gmb_extras[@]}"
+  exit 0
 }
 
 # Check if --help is the first argument
 [ "$1" = "--help" ] && usage
 
-# Check if the current directory is a Git repository
-is_a_git_repo=$(git rev-parse --is-inside-work-tree 2>/dev/null)
-
-if [ "$is_a_git_repo" = "true" ]; then
-	current_branch=$(git branch | awk '/\*/ {print $2}')
-	if [ $# -eq 1 ]; then
-		# check if the branch doesn't exist
-		if ! git rev-parse --verify "$1" >/dev/null 2>&1; then
-			echo "${BOLD} ■■▶ Fatal ! $1 is a Non Existing branch "
-		else
-			if [ "$current_branch" = "$1" ]; then
-				echo "${BOLD} ■■▶ Fatal ! Cannot Merge Identical Branch "
-			else
-				git merge "$1"
-			fi
-		fi
-	elif [ $# -eq 0 ]; then
-		echo "${BOLD} ■■▶ Fatal ! Specify the Branch to merge to $current_branch"
-	fi
-else
-	echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
-fi
+# Call gmb function
+gmb "$@"

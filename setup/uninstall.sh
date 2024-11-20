@@ -1,28 +1,5 @@
 #!/bin/bash
 
-# Check if the script is running on Android
-if [ -f "/system/build.prop" ]; then
-	SUDO=""
-else
-	# Check for sudo availability on other Unix-like systems
-	if command -v sudo >/dev/null 2>&1; then
-		SUDO="sudo"
-	else
-		echo "Sorry, sudo is not available."
-		exit 1
-	fi
-fi
-
-# this will check for sudo permission
-allow_sudo() {
-	if [ -n "$SUDO" ]; then
-		$SUDO -n true 2>/dev/null
-		if [ $? -ne 0 ]; then
-			$SUDO -v
-		fi
-	fi
-}
-
 # Get the binary path for linking
 binary_path=$(whereis sh | grep -o '/[^ ]*/bin' | head -n 1)
 
@@ -33,21 +10,13 @@ repo_source=$(git rev-parse --show-toplevel)
 git_scripts_path="$repo_source/git_scripts"
 gh_scripts_path="$repo_source/gh_scripts"
 
-# Define color codes
-BOLD=$'\033[1m'
-RED=$'\033[31m'
-WHITE=$'\033[97m'
-RESET=$'\033[0m'
-GREEN=$'\033[32m'
-LIGHT_BLUE=$'\033[34m'
-
 # Function to extract script name without the .sh extension
-get_script_name() {
+function get_script_name {
 	basename "$1" .sh
 }
 
 # Function to uninstall scripts
-uninstall_scripts() {
+function uninstall_scripts {
 	local script_dir="$1"
 	local script_type="$2"
 
@@ -62,14 +31,24 @@ uninstall_scripts() {
 				$SUDO rm "$link_path"
 				printf "${BOLD}${RED} ${RESET}"
 			else
-				printf "${BOLD}${RED}Not Installed ${RESET}"
+				printf " ● ${BOLD}${RED}Not Installed ${RESET}"
 			fi
 		else
-			printf "${WHITE}Skipping ${LIGHT_BLUE}${BOLD}$script ${RESET}${WHITE}: Not executable."
+			printf " ● ${WHITE}Skipping ${LIGHT_BLUE}${BOLD}$script ${RESET}${WHITE}: Not executable."
 		fi
 		echo
 	done
 }
+
+# Resolve the full path to the script's directory
+REAL_PATH="$(dirname "$(readlink -f "$0")")"
+PARENT_DIR="$(dirname "$REAL_PATH")"
+
+UTILS_DIR="$PARENT_DIR/utils"
+
+# Import necessary variables and functions
+source "$UTILS_DIR/check_sudo.sh"
+source "$UTILS_DIR/colors.sh"
 
 # prompt for sudo
 # password if required
