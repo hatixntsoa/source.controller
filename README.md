@@ -68,14 +68,3 @@ ls -l $(whereis sh | grep -o '/[^ ]*/bin' | head -n 1) | grep 'git_gh' | awk '{p
 | `gpl`    | Pull remote commits to local |
 | `gst`    | Short for git status -s |
 | `grst`   | Restore changes made |
-
----
-
-### Contributing
-
-If you want to create a new ``git_gh`` script, simply run the following command:
-
-```sh
-./utils/new.sh
-```
-This will automatically generate its corresponding help file in the `helps` directory also that we will adjust according to what the script does.
