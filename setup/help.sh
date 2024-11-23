@@ -16,7 +16,7 @@ function create_help_files {
 
       # Check if the help file exists and has content
       if [[ -s "$help_file" ]]; then
-        echo " ● ${BOLD}${LIGHT_BLUE}$(basename "$help_file") ${RESET}${WHITE}already exists."
+        echo " ● ${BOLD}${LIGHT_BLUE}$(basename "$help_file") ${RESET}${RESET}already exists."
       else
         # Call the function to write content to the help file
         printf " ● Creating ${BOLD}${LIGHT_BLUE}$(basename "$help_file")${RESET}..."

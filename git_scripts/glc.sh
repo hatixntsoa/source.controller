@@ -19,15 +19,15 @@ function glc {
       [ $commits_done_today -le 1 ] && commit_done_text="commit" || commit_done_text="commits";
       [ $commits_contrib_today -le 1 ] && commit_contrib_text="commit" || commit_contrib_text="commits";
       [ $commits_done_today -gt 0 ] &&
-        commit_done="${WHITE}Including ${LIGHT_BLUE}$commits_done_today $commit_done_text ${WHITE}by ${GREEN}$current_user ${WHITE}today" ||
-        commit_done="${WHITE}Including ${LIGHT_BLUE}$commits_contrib_today $commit_contrib_text ${WHITE}by ${GREEN}$last_commit_author ${WHITE}today"
+        commit_done="${RESET_COLOR}Including ${LIGHT_BLUE}$commits_done_today $commit_done_text ${RESET_COLOR}by ${GREEN}$current_user ${RESET_COLOR}today" ||
+        commit_done="${RESET_COLOR}Including ${LIGHT_BLUE}$commits_contrib_today $commit_contrib_text ${RESET_COLOR}by ${GREEN}$last_commit_author ${RESET_COLOR}today"
 
       if [ "$1" = "show" ]; then
         git log --oneline --no-decorate;
       else
-        echo "${BOLD}${LIGHT_BLUE} $repo_name ${WHITE}has ${LIGHT_BLUE}$commits_num $commit_text ";
+        echo "${BOLD}${LIGHT_BLUE} $repo_name ${RESET_COLOR}has ${LIGHT_BLUE}$commits_num $commit_text ";
         echo " $commit_done";
-        echo "${BOLD}${WHITE} Last Commit on ${GREEN}$current_branch ${WHITE}: $last_commit_message";
+        echo "${BOLD}${RESET_COLOR} Last Commit on ${GREEN}$current_branch ${RESET_COLOR}: $last_commit_message";
         echo
       fi
     else
@@ -78,4 +78,4 @@ function usage {
 [ "$1" = "--help" ] && usage
 
 # Call glc function
-glc
+glc "$@"

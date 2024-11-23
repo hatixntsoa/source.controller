@@ -26,7 +26,7 @@ function gck {
 				user="$(whoami)"
 				if ! git rev-parse --verify "$user" >/dev/null 2>&1; then
 					check_new_branch() {
-						printf "${BOLD}${WHITE}New branch${GREEN} "$user"${WHITE} ? (y/n) "
+						printf "${BOLD}${RESET_COLOR}New branch${GREEN} "$user"${RESET_COLOR} ? (y/n) "
 						read branch
 						if [ "$branch" = "y" ]; then
 							git checkout -b "$user" >/dev/null 2>&1
@@ -34,7 +34,7 @@ function gck {
 							# check for remote
 							if has_remote && gh_installed; then
 								check_new_remote_branch() {
-									printf "${BOLD}${WHITE}Add${GREEN} "$user"${WHITE} branch to ${LIGHT_BLUE}$repo_name ${WHITE}on GitHub ? (y/n) "
+									printf "${BOLD}${RESET_COLOR}Add${GREEN} "$user"${RESET_COLOR} branch to ${LIGHT_BLUE}$repo_name ${RESET_COLOR}on GitHub ? (y/n) "
 									read remote_branch
 									if [ "$remote_branch" = "y" ]; then
 										git push origin "$user"
@@ -71,7 +71,7 @@ function gck {
 			if ! git rev-parse --verify "$1" >/dev/null 2>&1; then
 				new_branch="$1"
 				check_new_branch() {
-					printf "${BOLD}${WHITE}New branch${GREEN} "$new_branch"${WHITE} ? (y/n) "
+					printf "${BOLD}${RESET_COLOR}New branch${GREEN} "$new_branch"${RESET_COLOR} ? (y/n) "
 					read branch
 					if [ "$branch" = "y" ]; then
 						git checkout -b "$new_branch" >/dev/null 2>&1
@@ -79,7 +79,7 @@ function gck {
 						# check for remote
 						if has_remote; then
 							check_new_remote_branch() {
-								printf "${BOLD}${WHITE}Add${GREEN} "$new_branch"${WHITE} branch to ${LIGHT_BLUE}$repo_name ${WHITE} on GitHub ? (y/n) "
+								printf "${BOLD}${RESET_COLOR}Add${GREEN} "$new_branch"${RESET_COLOR} branch to ${LIGHT_BLUE}$repo_name ${RESET_COLOR} on GitHub ? (y/n) "
 								read remote_branch
 								echo ${RESET}
 								if [ "$remote_branch" = "y" ]; then

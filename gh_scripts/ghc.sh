@@ -31,17 +31,17 @@ function ghc {
 			current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
 
 			check_set_repo() {
-				printf "${BOLD}${WHITE} Create ${GREEN}$repo_visibility ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
+				printf "${BOLD}${RESET_COLOR} Create ${GREEN}$repo_visibility ${RESET_COLOR}repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}? (y/n) ${RESET}"
 				read set_repo
 				if [ "$set_repo" = "y" ]; then
 					# Create the repo & set it as remote of the local one
-					printf "${BOLD} New repository ${LIGHT_BLUE}$repo_name ${WHITE}on GitHub ... ${RESET}"
+					printf "${BOLD} New repository ${LIGHT_BLUE}$repo_name ${RESET_COLOR}on GitHub ... ${RESET}"
 					gh repo create "$repo_name" --"$repo_visibility" &>/dev/null
 					git remote add origin "git@github.com:$current_user/$repo_name.git"
 					printf "${BOLD}${GREEN} ${RESET}\n"
 
 					check_push() {
-						printf "${BOLD}${WHITE} Push local commits to ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
+						printf "${BOLD}${RESET_COLOR} Push local commits to ${LIGHT_BLUE}$repo_name ${RESET_COLOR}? (y/n) ${RESET}"
 						read check_push_commit
 
 						if [ "$check_push_commit" = "y" ]; then
@@ -72,7 +72,7 @@ function ghc {
 		if ! connected; then
 			echo "${BOLD} ■■▶ Sorry, you are offline !${RESET}"
 			check_local() {
-				printf "${BOLD}${WHITE} Create ${GREEN}local ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
+				printf "${BOLD}${RESET_COLOR} Create ${GREEN}local ${RESET_COLOR}repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}? (y/n) ${RESET}"
 				read create_local
 
 				if [ "$create_local" = "y" ]; then
@@ -86,17 +86,17 @@ function ghc {
 			check_local
 		else
 			check_create_repo() {
-				printf "${BOLD}${WHITE} Create ${GREEN}$repo_visibility ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
+				printf "${BOLD}${RESET_COLOR} Create ${GREEN}$repo_visibility ${RESET_COLOR}repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}? (y/n) ${RESET}"
 				read create_repo
 				if [ "$create_repo" = "y" ]; then
 					# Create the repo & clone it locally
-					printf "${BOLD} New repository ${LIGHT_BLUE}$repo_name ${WHITE}on GitHub ... ${RESET}"
+					printf "${BOLD} New repository ${LIGHT_BLUE}$repo_name ${RESET_COLOR}on GitHub ... ${RESET}"
 					gh repo create "$repo_name" --"$repo_visibility" -c &>/dev/null
 					mv "$repo_name/.git" . && rm -rf "$repo_name"
 					printf "${BOLD}${GREEN} ${RESET}\n"
 				elif [ "$create_repo" = "n" ]; then
 					check_local() {
-						printf "${BOLD}${WHITE} Create ${GREEN}local ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
+						printf "${BOLD}${RESET_COLOR} Create ${GREEN}local ${RESET_COLOR}repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}? (y/n) ${RESET}"
 						read create_local
 
 						if [ "$create_local" = "y" ]; then

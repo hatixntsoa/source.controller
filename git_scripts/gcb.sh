@@ -5,10 +5,10 @@ function gcb {
 		if [ $# -eq 0 ]; then
 			git checkout -
 		else
-			echo "${BOLD}${WHITE} ■■▶ Usage : gcb (no argument)"
+			echo "${BOLD}${RESET_COLOR} ■■▶ Usage : gcb (no argument)"
 		fi
 	else
-		echo "${BOLD}${WHITE} ■■▶ This won't work, you are not in a git repo !"
+		echo "${BOLD}${RESET_COLOR} ■■▶ This won't work, you are not in a git repo !"
 	fi
 }
 

@@ -1,32 +1,56 @@
 #!/bin/bash
 
 function ghd {
-	if is_a_git_repo; then
-		if has_remote; then
-			if connected; then
-				repo_url=$(git config --get remote.origin.url)
-				current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
-				repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
+	if [ $# -eq 1 ]; then
+		if ! connected; then
+			echo "${BOLD} Sorry, you are offline !${RESET}"
+			return 0
+		fi
 
-				if [ "$repo_owner" != "$current_user" ]; then
-					echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo!${RESET}"
+		repo_name="$1"
+		current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
+
+		# Check if the repo doesn't exist
+		if ! is_a_github_repo "$current_user/$repo_name"; then
+			echo "${BOLD} Sorry, there is ${GREEN}no repo ${RESET_COLOR}such as ${LIGHT_BLUE}$current_user/$repo_name ${RESET_COLOR}on GitHub ${RESET}"
+			return 0
+		fi
+
+		isPrivate=$(gh repo view "$repo_name" --json isPrivate --jq '.isPrivate')
+		repo_visibility=$([ "$isPrivate" = "true" ] && echo "private" || echo "public")
+
+		delete_repo "$repo_name"
+	else
+		if is_a_git_repo; then
+			if has_remote; then
+				if connected; then
+					repo_url=$(git config --get remote.origin.url)
+					current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
+					repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
+
+					if [ "$repo_owner" != "$current_user" ]; then
+						echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo!${RESET}"
+					else
+						repo_name=$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')
+						isPrivate=$(gh repo view "$repo_name" --json isPrivate --jq '.isPrivate')
+						repo_visibility=$([ "$isPrivate" = "true" ] && echo "private" || echo "public")
+
+						delete_repo "$repo_name"
+						git remote remove origin
+						echo
+						delete_local_repo "$repo_name"
+					fi
 				else
-					repo_name=$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')
-					isPrivate=$(gh repo view "$repo_name" --json isPrivate --jq '.isPrivate')
-					repo_visibility=$([ "$isPrivate" = "true" ] && echo "private" || echo "public")
-
-					delete_repo
+					repo_name=$(basename "$(git rev-parse --show-toplevel)")
+					delete_local_repo "$repo_name"
 				fi
 			else
 				repo_name=$(basename "$(git rev-parse --show-toplevel)")
-				delete_local_repo
+				delete_local_repo "$repo_name"
 			fi
 		else
-			repo_name=$(basename "$(git rev-parse --show-toplevel)")
-			delete_local_repo
+			echo "${BOLD} ■■▶ This won't work, you are not in a git repo!${RESET}"
 		fi
-	else
-		echo "${BOLD} ■■▶ This won't work, you are not in a git repo!${RESET}"
 	fi
 }
 
@@ -44,12 +68,14 @@ UTILS_DIR="$PARENT_DIR/utils"
 source "$UTILS_DIR/check_connection.sh"
 source "$UTILS_DIR/check_git.sh"
 source "$UTILS_DIR/check_gh.sh"
+source "$UTILS_DIR/check_repo.sh"
 source "$UTILS_DIR/setup_git.sh"
 source "$UTILS_DIR/check_remote.sh"
 source "$UTILS_DIR/check_sudo.sh"
 source "$UTILS_DIR/check_user.sh"
 source "$UTILS_DIR/clean_repo.sh"
 source "$UTILS_DIR/colors.sh"
+source "$UTILS_DIR/loading.sh"
 source "$UTILS_DIR/usage.sh"
 
 # Import help file
@@ -81,36 +107,37 @@ check_connection
 
 # Function to delete local repo
 function delete_local_repo {
-	printf "${BOLD}${WHITE} Delete ${GREEN}local ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
+	printf "${BOLD}${RESET} Delete ${GREEN}local ${RESET}repo ${LIGHT_BLUE}$1 ${RESET}? (y/n) ${RESET}"
 	read delete_local_repo
+
 	if [ "$delete_local_repo" = "y" ]; then
 		local repo_source=$(git rev-parse --show-toplevel)
-		printf "${BOLD} Deleting ${GREEN}local ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}... ${RESET}"
-		rm -rf "$repo_source/.git"
-		echo "${BOLD}${GREEN} ${WHITE}"
+
+		execute_with_loading \
+			"${BOLD} Deleting ${GREEN}local ${RESET}repo ${LIGHT_BLUE}$1 ${RESET}... " \
+			"rm -rf "$repo_source/.git""
 	elif [ "$delete_local_repo" = "n" ]; then
 		return 0
 	else
-		delete_local_repo
+		delete_local_repo "$1"
 	fi
 }
 
 # Function to delete GitHub repo
 function delete_repo {
-	printf "${BOLD}${WHITE} Delete ${GREEN}$repo_visibility ${WHITE}repo ${LIGHT_BLUE}$repo_name ${WHITE}? (y/n) ${RESET}"
+	printf "${BOLD}${RESET} Delete ${GREEN}$repo_visibility ${RESET}repo ${LIGHT_BLUE}$1 ${RESET}? (y/n) ${RESET}"
 	read delete_repo
+
 	if [ "$delete_repo" = "y" ]; then
-		printf "${BOLD} Deleting repository ${LIGHT_BLUE}$repo_name ${WHITE}on GitHub ... ${RESET}"
-		gh repo delete "$repo_name" --yes &>/dev/null
-		git remote remove origin
-		echo "${BOLD}${GREEN} ${WHITE}"
-		delete_local_repo
+		execute_with_loading \
+			"${BOLD} Deleting repository ${LIGHT_BLUE}$1 ${RESET}on GitHub ... " \
+			"gh repo delete "$1" --yes"
 	elif [ "$delete_repo" = "n" ]; then
-		return 0
+		return 1
 	else
-		delete_repo
+		delete_repo "$1"
 	fi
 }
 
 # Call ghd function
-ghd
+ghd "$@"

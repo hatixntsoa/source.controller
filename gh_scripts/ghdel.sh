@@ -24,7 +24,7 @@ function ghdel {
 						# Check if the collaborator exists in the list of collaborators
 						if echo "$collaborators" | grep -q "$collaborator" ||
 							echo "$invitations" | grep -q "$collaborator"; then
-							printf "${BOLD} Removing ${LIGHT_BLUE}$collaborator ${WHITE}from ${LIGHT_BLUE}$repo_name${WHITE} "
+							printf "${BOLD} Removing ${LIGHT_BLUE}$collaborator ${RESET_COLOR}from ${LIGHT_BLUE}$repo_name${RESET_COLOR} "
 							# Check for pending invitations
 							invitation_id=$(gh api "repos/$current_user/$repo_name/invitations" --jq ".[] | select(.invitee.login==\"$collaborator\") | .id")
 
@@ -36,9 +36,9 @@ function ghdel {
 
 							# Remove collaborator using gh api
 							gh api --method=DELETE "repos/$current_user/$repo_name/collaborators/$collaborator" >/dev/null 2>&1
-							echo "${BOLD}${GREEN} ${WHITE}"
+							echo "${BOLD}${GREEN} ${RESET_COLOR}"
 						else
-							echo "${BOLD}${LIGHT_BLUE}$collaborator ${WHITE}is not a ${LIGHT_BLUE}collaborator ${RED}✘ ${WHITE}"
+							echo "${BOLD}${LIGHT_BLUE}$collaborator ${RESET_COLOR}is not a ${LIGHT_BLUE}collaborator ${RED}✘ ${RESET_COLOR}"
 						fi
 					done
 				fi

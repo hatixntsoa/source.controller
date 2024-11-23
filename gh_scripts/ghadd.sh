@@ -17,15 +17,15 @@ function ghadd {
 				else
 					# Loop through each collaborator username provided as an argument
 					for collaborator in "$@"; do
-						printf "${BOLD} Inviting ${LIGHT_BLUE}$collaborator ${WHITE}to collaborate on ${LIGHT_BLUE}$repo_name${WHITE} "
+						printf "${BOLD} Inviting ${LIGHT_BLUE}$collaborator ${RESET_COLOR}to collaborate on ${LIGHT_BLUE}$repo_name${RESET_COLOR} "
 
 						# Check if the collaborator exists on GitHub
 						if is_a_github_user "$collaborator"; then
 							# Add collaborator using gh api
 							gh api --method=PUT "repos/$current_user/$repo_name/collaborators/$collaborator" >/dev/null 2>&1
-							echo "${BOLD}${GREEN} ${WHITE}"
+							echo "${BOLD}${GREEN} ${RESET_COLOR}"
 						else
-							echo "${BOLD}${RED}✘ ${WHITE}"
+							echo "${BOLD}${RED}✘ ${RESET_COLOR}"
 						fi
 					done
 				fi

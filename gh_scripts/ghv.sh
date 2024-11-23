@@ -18,9 +18,9 @@ function ghv {
 				echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo !"
 			elif [ "$1" = "owner" ]; then
 				if has_remote; then
-					echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${WHITE}is owned by ${GREEN}$repo_owner"
+					echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is owned by ${GREEN}$repo_owner"
 				else
-					echo "${BOLD} The local repo ${LIGHT_BLUE}$repo_name ${WHITE}is owned by ${GREEN}$repo_owner"
+					echo "${BOLD} The local repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is owned by ${GREEN}$repo_owner"
 				fi
 			else
 				if has_remote; then
@@ -34,17 +34,17 @@ function ghv {
 
 						if [ "$1" = "show" ]; then
 							visibility=$([ "$isPrivate" = "true" ] && echo "private" || echo "public")
-							echo "${BOLD} This repo ${LIGHT_BLUE}$repo_name ${WHITE}is ${GREEN}$visibility"
+							echo "${BOLD} This repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is ${GREEN}$visibility"
 						else
 							new_visibility=$([ "$isPrivate" = "true" ] && echo "public" || echo "private")
 							toggle_visibility() {
-								printf "${BOLD}${WHITE} Make ${LIGHT_BLUE}$repo_name ${WHITE}repo ${GREEN}$new_visibility ${WHITE}? (y/n) "
+								printf "${BOLD}${RESET_COLOR} Make ${LIGHT_BLUE}$repo_name ${RESET_COLOR}repo ${GREEN}$new_visibility ${RESET_COLOR}? (y/n) "
 								read -r change_visibility
 								if [ "$change_visibility" = "y" ]; then
 									# toggle visibility
-									printf "${BOLD} Changing repo visibility to ${GREEN}$new_visibility ${WHITE}... "
+									printf "${BOLD} Changing repo visibility to ${GREEN}$new_visibility ${RESET_COLOR}... "
 									gh repo edit "$repo_owner/$repo_name" --visibility "$new_visibility" &>/dev/null
-									echo "${BOLD}${GREEN} ${WHITE}"
+									echo "${BOLD}${GREEN} ${RESET_COLOR}"
 								elif [ "$change_visibility" = "n" ]; then
 									return 0
 								else
@@ -57,7 +57,7 @@ function ghv {
 						echo "${BOLD} ■■▶ This won't work, you are offline !${RESET}"
 					fi
 				else
-					echo "${BOLD} The local repo ${LIGHT_BLUE}$repo_name ${WHITE}is owned by ${GREEN}$repo_owner"
+					echo "${BOLD} The local repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is owned by ${GREEN}$repo_owner"
 				fi
 			fi
 		else

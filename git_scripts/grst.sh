@@ -10,7 +10,7 @@ function grst {
 			# Loop through each argument and check if it's a file
 			for arg in "$@"; do
 				if [ ! -f "$arg" ]; then
-					echo "${BOLD}${WHITE} ■■▶ Sorry, only restore file(s). ${LIGHT_BLUE}'$arg'${WHITE} is not a valid file."
+					echo "${BOLD}${RESET_COLOR} ■■▶ Sorry, only restore file(s). ${LIGHT_BLUE}'$arg'${RESET_COLOR} is not a valid file."
 					exit 1
 				fi
 			done
@@ -18,7 +18,7 @@ function grst {
 			git restore "$@"
 		fi
 	else
-		echo "${BOLD}${WHITE} ■■▶ This won't work, you are not in a git repo !"
+		echo "${BOLD}${RESET_COLOR} ■■▶ This won't work, you are not in a git repo !"
 	fi
 }
 

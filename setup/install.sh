@@ -26,7 +26,7 @@ function install_scripts {
 			symlink_path="$binary_path/$script_name"
 
 			if [ -L "$symlink_path" ]; then
-				printf " ● ${BOLD}${LIGHT_BLUE}$script_name ${RESET}${WHITE}already installed."
+				printf " ● ${BOLD}${LIGHT_BLUE}$script_name ${RESET}${RESET}already installed."
 			else
 				printf " ● Installing ${BOLD}${LIGHT_BLUE}$script_name${RESET}..."
 				$SUDO ln -s "$script" "$symlink_path"
@@ -55,11 +55,11 @@ allow_sudo
 echo
 
 # Install git scripts
-echo "${WHITE} Installing ${BOLD}Git Scripts${WHITE}...${RESET}"
+echo "${RESET} Installing ${BOLD}Git Scripts${RESET}...${RESET}"
 install_scripts "$git_scripts_path" "git"
 echo
 
 # Install gh scripts
-echo "${WHITE}   Installing ${BOLD}Gh Scripts${WHITE}...${RESET}"
+echo "${RESET}   Installing ${BOLD}Gh Scripts${RESET}...${RESET}"
 install_scripts "$gh_scripts_path" "gh"
 echo

@@ -34,7 +34,7 @@ function uninstall_scripts {
 				printf " ● ${BOLD}${RED}Not Installed ${RESET}"
 			fi
 		else
-			printf " ● ${WHITE}Skipping ${LIGHT_BLUE}${BOLD}$script ${RESET}${WHITE}: Not executable."
+			printf " ● ${RESET}Skipping ${LIGHT_BLUE}${BOLD}$script ${RESET}${RESET}: Not executable."
 		fi
 		echo
 	done
@@ -56,11 +56,11 @@ allow_sudo
 echo
 
 # Uninstall git scripts
-echo "${WHITE}   Uninstalling ${BOLD}Git Scripts${WHITE}...${RESET}"
+echo "${RESET}   Uninstalling ${BOLD}Git Scripts${RESET}...${RESET}"
 uninstall_scripts "$git_scripts_path" "git"
 echo
 
 # Uninstall gh scripts
-echo "${WHITE}   Uninstalling ${BOLD}Gh Scripts${WHITE}...${RESET}"
+echo "${RESET}   Uninstalling ${BOLD}Gh Scripts${RESET}...${RESET}"
 uninstall_scripts "$gh_scripts_path" "gh"
 echo

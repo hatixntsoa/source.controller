@@ -15,7 +15,7 @@ function gpsh {
 		if has_remote; then
 			git push origin $current_branch
 		else
-			echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${WHITE}has ${RED}no remote"
+			echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}has ${RED}no remote"
 		fi
 	else
 		echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"

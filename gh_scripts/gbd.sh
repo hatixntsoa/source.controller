@@ -14,14 +14,14 @@ function gbd {
 			if [ "$1" = "$default_branch" ]; then
 				echo "${BOLD} ■■▶ Fatal ! Cannot Delete the Default Branch "
 			elif ! git show-ref --verify --quiet "refs/heads/$1" &>/dev/null; then
-				echo "${BOLD} ■■▶ Fatal ! Branch ${GREEN}$1 ${WHITE}doesn't exist ${RESET}"
+				echo "${BOLD} ■■▶ Fatal ! Branch ${GREEN}$1 ${RESET_COLOR}doesn't exist ${RESET}"
 			else
 				# this to check if we want to delete the remote branch too
 				check_delete_remote_branch() {
 					if [ "$current_branch" = "$default_branch" ]; then
 						echo "${BOLD} ■■▶ Fatal ! Cannot Delete the Default Branch "
 					else
-						printf "${BOLD}${WHITE}Delete remote branch${GREEN} "$current_branch"${WHITE} ? (y/n) ${RESET}"
+						printf "${BOLD}${RESET_COLOR}Delete remote branch${GREEN} "$current_branch"${RESET_COLOR} ? (y/n) ${RESET}"
 						read delete_remote_branch
 						echo ${RESET}
 						if [ "$delete_remote_branch" = "y" ]; then
@@ -37,7 +37,7 @@ function gbd {
 				check_delete_branch() {
 					branch_name="$1"
 
-					printf "${BOLD}${WHITE}Delete branch${GREEN} "$branch_name"${WHITE} ? (y/n) ${RESET}"
+					printf "${BOLD}${RESET_COLOR}Delete branch${GREEN} "$branch_name"${RESET_COLOR} ? (y/n) ${RESET}"
 					read delete_branch
 
 					if [ "$delete_branch" = "y" ]; then
@@ -75,18 +75,18 @@ function gbd {
 			fi
 		elif [ $# -eq 0 ]; then
 			if [ "$current_branch" = "$default_branch" ]; then
-				echo "${BOLD}${WHITE} ■■▶ Fatal ! Cannot Delete the Default Branch "
+				echo "${BOLD}${RESET_COLOR} ■■▶ Fatal ! Cannot Delete the Default Branch "
 			else
 				check_delete_branch() {
-					printf "${BOLD}${WHITE}Delete branch${GREEN} "$current_branch"${WHITE} ? (y/n) ${RESET}"
+					printf "${BOLD}${RESET_COLOR}Delete branch${GREEN} "$current_branch"${RESET_COLOR} ? (y/n) ${RESET}"
 					read delete_branch
 					if [ "$delete_branch" = "y" ]; then
 						# TODO : Remote branch Deletion
 						check_delete_remote_branch() {
 							if [ "$current_branch" = "$default_branch" ]; then
-								echo "${BOLD}${WHITE} ■■▶ Fatal ! Cannot Delete the Default Branch "
+								echo "${BOLD}${RESET_COLOR} ■■▶ Fatal ! Cannot Delete the Default Branch "
 							else
-								printf "${BOLD}${WHITE}Delete remote branch${GREEN} "$current_branch"${WHITE} ? (y/n) ${RESET}"
+								printf "${BOLD}${RESET_COLOR}Delete remote branch${GREEN} "$current_branch"${RESET_COLOR} ? (y/n) ${RESET}"
 								read delete_remote_branch
 								echo ${RESET}
 								if [ "$delete_remote_branch" = "y" ]; then
@@ -131,10 +131,10 @@ function gbd {
 				check_delete_branch
 			fi
 		else
-			echo "${BOLD}${WHITE} ■■▶ Usage : gbd branch_to_delete"
+			echo "${BOLD}${RESET_COLOR} ■■▶ Usage : gbd branch_to_delete"
 		fi
 	else
-		echo "${BOLD}${WHITE} ■■▶ This won't work, you are not in a git repo !"
+		echo "${BOLD}${RESET_COLOR} ■■▶ This won't work, you are not in a git repo !"
 	fi
 }
 

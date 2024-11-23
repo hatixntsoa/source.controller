@@ -8,12 +8,12 @@ function gnm {
 			git branch -M $current_branch "$1"
 			cv
 		elif [ $# -eq 0 ]; then
-			echo "${BOLD}${WHITE} ■■▶ Please pass the new name of '$current_branch' branch as argument "
+			echo "${BOLD}${RESET_COLOR} ■■▶ Please pass the new name of '$current_branch' branch as argument "
 		else
-			echo "${BOLD}${WHITE} ■■▶ Usage : gnm new_name_of_the_branch"
+			echo "${BOLD}${RESET_COLOR} ■■▶ Usage : gnm new_name_of_the_branch"
 		fi
 	else
-		echo "${BOLD}${WHITE} ■■▶ This won't work, you are not in a git repo !"
+		echo "${BOLD}${RESET_COLOR} ■■▶ This won't work, you are not in a git repo !"
 	fi
 }
 

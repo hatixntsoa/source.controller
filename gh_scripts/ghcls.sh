@@ -12,7 +12,7 @@ function ghcls {
 			if [ "$repo_owner" != "$current_user" ]; then
 				echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo !"
 			else
-				printf "${BOLD} ${LIGHT_BLUE}Collaborators ${WHITE}for the ${LIGHT_BLUE}$repo_name ${WHITE}repository "
+				printf "${BOLD} ${LIGHT_BLUE}Collaborators ${RESET_COLOR}for the ${LIGHT_BLUE}$repo_name ${RESET_COLOR}repository "
 
 				# List collaborators using gh api
 				collaborators=$(gh api "repos/$current_user/$repo_name/collaborators" --jq '.[].login')
@@ -21,7 +21,7 @@ function ghcls {
 				collaborators_count=$(echo "$collaborators" | wc -l)
 				invitations_count=$(echo "$invitations" | wc -l)
 				collaborators_num=$((collaborators_count + invitations_count))
-				echo "${WHITE}${BOLD}($collaborators_count)"
+				echo "${RESET_COLOR}${BOLD}($collaborators_count)"
 
 				# Iterate through each collaborator
 				if [ -n "$collaborators" ]; then

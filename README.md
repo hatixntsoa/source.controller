@@ -32,12 +32,14 @@ for your GitHub repositories, these scripts enable you to do so efficiently
   ```sh
   ./setup/install.sh
   ```
+
 ### Usages
 
-Once the scripts installed, you can check for them by running :
+Once the scripts are installed, you can check for them by running:
 ```sh
 ls -l $(whereis sh | grep -o '/[^ ]*/bin' | head -n 1) | grep 'git_gh' | awk '{print $NF}' | xargs -n 1 basename | sed 's/\.sh$//'
 ```
+
 - **gh Scripts** : GitHub operations management
 
 | **Name** | **Usage** |
@@ -56,7 +58,7 @@ ls -l $(whereis sh | grep -o '/[^ ]*/bin' | head -n 1) | grep 'git_gh' | awk '{p
 
 | **Name** | **Usage** |
 |----------|-----------|
-| `gad`    | Add and Committing changes |
+| `gad`    | Add and Commit changes |
 | `gcb`    | Switch to the previously checked-out branch |
 | `gdf`    | Short for git diff |
 | `glc`    | Display the number of commits with last messages made by the current user |
@@ -66,3 +68,14 @@ ls -l $(whereis sh | grep -o '/[^ ]*/bin' | head -n 1) | grep 'git_gh' | awk '{p
 | `gpl`    | Pull remote commits to local |
 | `gst`    | Short for git status -s |
 | `grst`   | Restore changes made |
+
+---
+
+### Contributing
+
+If you want to create a new ``git_gh`` script, simply run the following command:
+
+```sh
+./utils/new.sh
+```
+This will automatically generate its corresponding help file in the `helps` directory also that we will adjust according to what the script does.
