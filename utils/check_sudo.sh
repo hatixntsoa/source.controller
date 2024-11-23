@@ -17,8 +17,6 @@ fi
 function allow_sudo {
 	if [ -n "$SUDO" ]; then
 		$SUDO -n true 2>/dev/null
-		if [ $? -ne 0 ]; then
-			$SUDO -v
-		fi
+		[ $? -ne 0 ] && $SUDO -v
 	fi
 }

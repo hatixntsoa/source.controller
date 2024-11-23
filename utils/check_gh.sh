@@ -9,9 +9,6 @@ function check_gh {
 }
 
 function gh_installed {
-  # Check if GitHub CLI is installed
-  if gh --version >/dev/null 2>&1; then
-    return 0
-  fi
-  return 1
+  gh --version >/dev/null 2>&1
+  return $?
 }

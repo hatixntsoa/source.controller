@@ -2,10 +2,8 @@
 
 # function for connection check
 function connected {
-  if $SUDO ping -c 1 github.com &>/dev/null; then
-    return 0
-  fi
-  return 1
+  $SUDO ping -c 1 github.com &>/dev/null
+  return $?
 }
 
 # Check for internet connectivity to GitHub
