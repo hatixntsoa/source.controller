@@ -62,16 +62,6 @@ source "$UTILS_DIR/usage.sh"
 # Import help file
 source "$HELPS_DIR/$HELP_FILE"
 
-# prompt for sudo
-# password if required
-allow_sudo
-
-# Setting up git
-setup_git
-
-# Check gh
-check_gh
-
 # Usage function to display help
 function usage {
   show_help "Usage" "${ghadd_arguments[@]}"
@@ -83,6 +73,16 @@ function usage {
 
 # Check if --help is the first argument
 [ "$1" = "--help" ] && usage
+
+# prompt for sudo
+# password if required
+allow_sudo
+
+# Setting up git
+setup_git
+
+# Check gh
+check_gh
 
 # Check for internet connectivity to GitHub
 check_connection

@@ -58,13 +58,6 @@ source "$UTILS_DIR/usage.sh"
 # Import help file
 source "$HELPS_DIR/$HELP_FILE"
 
-# prompt for sudo
-# password if required
-allow_sudo
-
-# Setting up git
-setup_git
-
 # Usage function to display help
 function usage {
   show_help "Usage" "${glc_arguments[@]}"
@@ -76,6 +69,13 @@ function usage {
 
 # Check if --help is the first argument
 [ "$1" = "--help" ] && usage
+
+# prompt for sudo
+# password if required
+allow_sudo
+
+# Setting up git
+setup_git
 
 # Call glc function
 glc "$@"

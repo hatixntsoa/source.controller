@@ -65,13 +65,6 @@ source "$UTILS_DIR/usage.sh"
 # Import help file
 source "$HELPS_DIR/$HELP_FILE"
 
-# prompt for sudo
-# password if required
-allow_sudo
-
-# Setting up git
-setup_git
-
 # Usage function to display help
 function usage {
   show_help "Usage" "${gcln_arguments[@]}"
@@ -87,6 +80,13 @@ clone_regex='^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$'
 if [[ "$1" == "--help" || "$#" -lt 1 ]]; then
   usage
 fi
+
+# prompt for sudo
+# password if required
+allow_sudo
+
+# Setting up git
+setup_git
 
 # Check for internet connectivity to GitHub
 check_connection
