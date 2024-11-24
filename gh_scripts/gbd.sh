@@ -12,14 +12,14 @@ function gbd {
 
 		if [ $# -eq 1 ]; then
 			if [ "$1" = "$default_branch" ]; then
-				echo "${BOLD} ■■▶ Fatal ! Cannot Delete the Default Branch "
+				echo "${BOLD} Fatal ! Cannot Delete the Default Branch "
 			elif ! git show-ref --verify --quiet "refs/heads/$1" &>/dev/null; then
-				echo "${BOLD} ■■▶ Fatal ! Branch ${GREEN}$1 ${RESET_COLOR}doesn't exist ${RESET}"
+				echo "${BOLD} Fatal ! Branch ${GREEN}$1 ${RESET_COLOR}doesn't exist ${RESET}"
 			else
 				# this to check if we want to delete the remote branch too
 				check_delete_remote_branch() {
 					if [ "$current_branch" = "$default_branch" ]; then
-						echo "${BOLD} ■■▶ Fatal ! Cannot Delete the Default Branch "
+						echo "${BOLD} Fatal ! Cannot Delete the Default Branch "
 					else
 						printf "${BOLD}${RESET_COLOR}Delete remote branch${GREEN} "$current_branch"${RESET_COLOR} ? (y/n) ${RESET}"
 						read delete_remote_branch

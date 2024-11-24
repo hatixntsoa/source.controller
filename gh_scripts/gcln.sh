@@ -28,7 +28,7 @@ function clone_repo {
 
   # Check if the owner exists on GitHub
 	if ! is_a_github_user "$repo_owner"; then
-    echo "${BOLD} ■■▶ Sorry, there is no user named ${GREEN}$repo_owner ${RESET_COLOR}on ${LIGHT_BLUE}GitHub !"
+    echo "${BOLD} Sorry, there is no user named ${GREEN}$repo_owner ${RESET_COLOR}on ${LIGHT_BLUE}GitHub !"
     return 0
   fi
 

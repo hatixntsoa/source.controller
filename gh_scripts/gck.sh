@@ -51,7 +51,7 @@ function gck {
 									if $SUDO ping -c 1 github.com &>/dev/null; then
 										check_new_remote_branch
 									else
-										echo "${BOLD} ■■▶ Cannot push to remote branch, you are offline !${RESET}"
+										echo "${BOLD} Cannot push to remote branch, you are offline !${RESET}"
 									fi
 								fi
 							fi
@@ -97,7 +97,7 @@ function gck {
 								if $SUDO ping -c 1 github.com &>/dev/null; then
 									check_new_remote_branch
 								else
-									echo "${BOLD} ■■▶ Cannot push to remote branch, you are offline !${RESET}"
+									echo "${BOLD} Cannot push to remote branch, you are offline !${RESET}"
 								fi
 							fi
 						fi
@@ -112,10 +112,10 @@ function gck {
 				git checkout "$1"
 			fi
 		else
-			echo "${BOLD} ■■▶ Usage : gck branch or gck (switch default branch)"
+			echo "${BOLD} Usage : gck branch or gck (switch default branch)"
 		fi
 	else
-		echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
+		echo "${BOLD} This won't work, you are not in a git repo !"
 	fi
 }
 

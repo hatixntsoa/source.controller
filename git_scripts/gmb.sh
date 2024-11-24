@@ -6,19 +6,19 @@ function gmb {
 		if [ $# -eq 1 ]; then
 			# check if the branch doesn't exist
 			if ! git rev-parse --verify "$1" >/dev/null 2>&1; then
-				echo "${BOLD} ■■▶ Fatal ! $1 is a Non Existing branch "
+				echo "${BOLD} Fatal ! $1 is a Non Existing branch "
 			else
 				if [ "$current_branch" = "$1" ]; then
-					echo "${BOLD} ■■▶ Fatal ! Cannot Merge Identical Branch "
+					echo "${BOLD} Fatal ! Cannot Merge Identical Branch "
 				else
 					git merge "$1"
 				fi
 			fi
 		elif [ $# -eq 0 ]; then
-			echo "${BOLD} ■■▶ Fatal ! Specify the Branch to merge to $current_branch"
+			echo "${BOLD} Fatal ! Specify the Branch to merge to $current_branch"
 		fi
 	else
-		echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
+		echo "${BOLD} This won't work, you are not in a git repo !"
 	fi
 }
 

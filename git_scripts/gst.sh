@@ -4,7 +4,7 @@ function gst {
 	if is_a_git_repo; then
 		git status -s
 	else
-		echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
+		echo "${BOLD} This won't work, you are not in a git repo !"
 	fi
 }
 

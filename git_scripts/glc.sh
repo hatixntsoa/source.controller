@@ -31,10 +31,10 @@ function glc {
         echo
       fi
     else
-      echo "${BOLD} ■■▶ Sorry, no commits yet inside this repo !";
+      echo "${BOLD} Sorry, no commits yet inside this repo !";
     fi
   else
-    echo "${BOLD} ■■▶ This won't work, you are not in a git repo !";
+    echo "${BOLD} This won't work, you are not in a git repo !";
   fi
 }
 

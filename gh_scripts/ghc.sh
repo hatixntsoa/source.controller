@@ -70,7 +70,7 @@ function ghc {
 	else
 		# Check for internet connectivity to GitHub
 		if ! connected; then
-			echo "${BOLD} ■■▶ Sorry, you are offline !${RESET}"
+			echo "${BOLD} Sorry, you are offline !${RESET}"
 			check_local() {
 				printf "${BOLD}${RESET_COLOR} Create ${GREEN}local ${RESET_COLOR}repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}? (y/n) ${RESET}"
 				read create_local

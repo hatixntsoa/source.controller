@@ -4,7 +4,7 @@ function ghdel {
 	if is_a_git_repo; then
 		if has_remote; then
 			if [ $# -eq 0 ]; then
-				echo "${BOLD} ■■▶ Specify the username of the collaborator to remove !"
+				echo "${BOLD} Specify the username of the collaborator to remove !"
 			elif [ $# -gt 0 ]; then
 				current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
 				repo_url=$(git config --get remote.origin.url)
@@ -13,7 +13,7 @@ function ghdel {
 
 				# check if we are not the owner of the repo
 				if [ "$repo_owner" != "$current_user" ]; then
-					echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo !"
+					echo "${BOLD} Sorry, you are not the owner of this repo !"
 				else
 					# Retrieve the list of collaborators
 					collaborators=$(gh api "repos/$current_user/$repo_name/collaborators" --jq '.[].login')
@@ -44,10 +44,10 @@ function ghdel {
 				fi
 			fi
 		else
-			echo "${BOLD} ■■▶ This repo has no remote on Github !"
+			echo "${BOLD} This repo has no remote on Github !"
 		fi
 	else
-		echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
+		echo "${BOLD} This won't work, you are not in a git repo !"
 	fi
 }
 

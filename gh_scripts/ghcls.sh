@@ -10,7 +10,7 @@ function ghcls {
 
 			# check if we are not the owner of the repo
 			if [ "$repo_owner" != "$current_user" ]; then
-				echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo !"
+				echo "${BOLD} Sorry, you are not the owner of this repo !"
 			else
 				printf "${BOLD} ${LIGHT_BLUE}Collaborators ${RESET_COLOR}for the ${LIGHT_BLUE}$repo_name ${RESET_COLOR}repository "
 
@@ -45,10 +45,10 @@ function ghcls {
 				fi
 			fi
 		else
-			echo "${BOLD} ■■▶ This repo has no remote on GitHub !"
+			echo "${BOLD} This repo has no remote on GitHub !"
 		fi
 	else
-		echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
+		echo "${BOLD} This won't work, you are not in a git repo !"
 	fi
 }
 

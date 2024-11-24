@@ -15,7 +15,7 @@ function ghv {
 			fi
 
 			if [ "$repo_owner" != "$current_user" ] && [ "$1" != "owner" ]; then
-				echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo !"
+				echo "${BOLD} Sorry, you are not the owner of this repo !"
 			elif [ "$1" = "owner" ]; then
 				if has_remote; then
 					echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is owned by ${GREEN}$repo_owner"
@@ -54,17 +54,17 @@ function ghv {
 							toggle_visibility
 						fi
 					else
-						echo "${BOLD} ■■▶ This won't work, you are offline !${RESET}"
+						echo "${BOLD} This won't work, you are offline !${RESET}"
 					fi
 				else
 					echo "${BOLD} The local repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is owned by ${GREEN}$repo_owner"
 				fi
 			fi
 		else
-			echo "${BOLD} ■■▶ Sorry, wrong command argument !"
+			echo "${BOLD} Sorry, wrong command argument !"
 		fi
 	else
-		echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
+		echo "${BOLD} This won't work, you are not in a git repo !"
 	fi
 }
 

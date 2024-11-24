@@ -23,7 +23,7 @@ function gad {
 			fi
 		fi
 	else
-		echo "${BOLD} ■■▶ This won't work, you are not in a git repo!${RESET}"
+		echo "${BOLD} This won't work, you are not in a git repo!${RESET}"
 	fi
 }
 

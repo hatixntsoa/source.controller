@@ -19,13 +19,13 @@ function gpl {
 			if [ -n "$is_remote_branch" ]; then
 				git pull origin $current_branch
 			else
-				echo "${BOLD} ■■▶ The remote repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}has no branch named ${GREEN}$current_branch ${RESET_COLOR}!"
+				echo "${BOLD} The remote repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}has no branch named ${GREEN}$current_branch ${RESET_COLOR}!"
 			fi
 		else
 			echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}has ${RED}no remote"
 		fi
 	else
-		echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
+		echo "${BOLD} This won't work, you are not in a git repo !"
 	fi
 }
 

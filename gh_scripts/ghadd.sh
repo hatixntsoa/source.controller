@@ -4,7 +4,7 @@ function ghadd {
 	if is_a_git_repo; then
 		if has_remote; then
 			if [ $# -eq 0 ]; then
-				echo "${BOLD} ■■▶ Specify the username of the new collaborator !"
+				echo "${BOLD} Specify the username of the new collaborator !"
 			elif [ $# -gt 0 ]; then
 				current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
 				repo_url=$(git config --get remote.origin.url)
@@ -13,7 +13,7 @@ function ghadd {
 
 				# check if we are not the owner of the repo
 				if [ "$repo_owner" != "$current_user" ]; then
-					echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo !"
+					echo "${BOLD} Sorry, you are not the owner of this repo !"
 				else
 					# Loop through each collaborator username provided as an argument
 					for collaborator in "$@"; do
@@ -31,10 +31,10 @@ function ghadd {
 				fi
 			fi
 		else
-			echo "${BOLD} ■■▶ This repo has no remote on GitHub !"
+			echo "${BOLD} This repo has no remote on GitHub !"
 		fi
 	else
-		echo "${BOLD} ■■▶ This won't work, you are not in a git repo !"
+		echo "${BOLD} This won't work, you are not in a git repo !"
 	fi
 }
 
