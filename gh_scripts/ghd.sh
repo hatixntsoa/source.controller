@@ -7,6 +7,11 @@ function ghd {
 			return 0
 		fi
 
+		if ! gh_installed; then
+			echo "${BOLD} gh is not installed !${RESET}"
+			return 0
+		fi
+
 		repo_name="$1"
 		current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
 
@@ -24,12 +29,17 @@ function ghd {
 		if is_a_git_repo; then
 			if has_remote; then
 				if connected; then
+					if ! gh_installed; then
+						echo "${BOLD} gh is not installed !${RESET}"
+						return 0
+					fi
+
 					repo_url=$(git config --get remote.origin.url)
 					current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
 					repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
 
 					if [ "$repo_owner" != "$current_user" ]; then
-						echo "${BOLD} ■■▶ Sorry, you are not the owner of this repo!${RESET}"
+						echo "${BOLD} Sorry, you are not the owner of this repo!${RESET}"
 					else
 						repo_name=$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')
 						isPrivate=$(gh repo view "$repo_name" --json isPrivate --jq '.isPrivate')
@@ -49,7 +59,7 @@ function ghd {
 				delete_local_repo "$repo_name"
 			fi
 		else
-			echo "${BOLD} ■■▶ This won't work, you are not in a git repo!${RESET}"
+			echo "${BOLD} This won't work, you are not in a git repo!${RESET}"
 		fi
 	fi
 }
@@ -83,10 +93,10 @@ source "$HELPS_DIR/$HELP_FILE"
 
 # Usage function to display help
 function usage {
-  show_help "Usage" "${ghd_arguments[@]}"
+	show_help "Usage" "${ghd_arguments[@]}"
 	show_help "Description" "${ghd_descriptions[@]}"
 	show_help "Options" "${ghd_options[@]}"
-  exit 0
+	exit 0
 }
 
 # Check if --help is the first argument
@@ -98,12 +108,6 @@ allow_sudo
 
 # Setting up git
 setup_git
-
-# Check gh
-check_gh
-
-# Check for internet connectivity to GitHub
-check_connection
 
 # Function to delete local repo
 function delete_local_repo {
