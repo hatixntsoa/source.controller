@@ -26,47 +26,48 @@ function ghc {
 
 	if is_a_git_repo; then
 		if has_remote; then
-			printf "${BOLD}■■▶ This repo already has a remote on GitHub!${RESET}\n"
-		else
-			current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
+			printf "${BOLD} This repo already has a remote on GitHub!${RESET}\n"
+			return 0
+		fi
+		
+		current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
 
-			check_set_repo() {
-				printf "${BOLD}${RESET_COLOR} Create ${GREEN}$repo_visibility ${RESET_COLOR}repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}? (y/n) ${RESET}"
-				read set_repo
-				if [ "$set_repo" = "y" ]; then
-					# Create the repo & set it as remote of the local one
-					printf "${BOLD} New repository ${LIGHT_BLUE}$repo_name ${RESET_COLOR}on GitHub ... ${RESET}"
-					gh repo create "$repo_name" --"$repo_visibility" &>/dev/null
-					git remote add origin "git@github.com:$current_user/$repo_name.git"
-					printf "${BOLD}${GREEN} ${RESET}\n"
+		check_set_repo() {
+			printf "${BOLD}${RESET_COLOR} Create ${GREEN}$repo_visibility ${RESET_COLOR}repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}? (y/n) ${RESET}"
+			read set_repo
+			if [ "$set_repo" = "y" ]; then
+				# Create the repo & set it as remote of the local one
+				printf "${BOLD} New repository ${LIGHT_BLUE}$repo_name ${RESET_COLOR}on GitHub ... ${RESET}"
+				gh repo create "$repo_name" --"$repo_visibility" &>/dev/null
+				git remote add origin "git@github.com:$current_user/$repo_name.git"
+				printf "${BOLD}${GREEN} ${RESET}\n"
 
-					check_push() {
-						printf "${BOLD}${RESET_COLOR} Push local commits to ${LIGHT_BLUE}$repo_name ${RESET_COLOR}? (y/n) ${RESET}"
-						read check_push_commit
+				check_push() {
+					printf "${BOLD}${RESET_COLOR} Push local commits to ${LIGHT_BLUE}$repo_name ${RESET_COLOR}? (y/n) ${RESET}"
+					read check_push_commit
 
-						if [ "$check_push_commit" = "y" ]; then
-							current_branch=$(git branch | awk '/\*/ {print $2}')
-							git push origin "$current_branch"
-						elif [ "$check_push_commit" = "n" ]; then
-							return 0
-						else
-							check_push
-						fi
-					}
-
-					current_branch=$(git branch | awk '/\*/ {print $2}')
-
-					if git rev-list --count "$current_branch" 2>/dev/null | grep -q '^[1-9]'; then
+					if [ "$check_push_commit" = "y" ]; then
+						current_branch=$(git branch | awk '/\*/ {print $2}')
+						git push origin "$current_branch"
+					elif [ "$check_push_commit" = "n" ]; then
+						return 0
+					else
 						check_push
 					fi
-				elif [ "$set_repo" = "n" ]; then
-					return 0
-				else
-					check_set_repo
+				}
+
+				current_branch=$(git branch | awk '/\*/ {print $2}')
+
+				if git rev-list --count "$current_branch" 2>/dev/null | grep -q '^[1-9]'; then
+					check_push
 				fi
-			}
-			check_set_repo
-		fi
+			elif [ "$set_repo" = "n" ]; then
+				return 0
+			else
+				check_set_repo
+			fi
+		}
+		check_set_repo
 	else
 		# Check for internet connectivity to GitHub
 		if ! connected; then

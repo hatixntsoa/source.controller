@@ -9,12 +9,12 @@ function ghf {
 	# regex to match clone repo case
 	clone_regex='^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$'
 
-  # Check if repo has not the format owner/repo
-  if [[ ! "$repo" =~ $clone_regex ]]; then
-    usage
-  fi
+	# Check if repo has not the format owner/repo
+	if [[ ! "$repo" =~ $clone_regex ]]; then
+		usage
+	fi
 
-  # Check if the owner exists on GitHub
+  	# Check if the owner exists on GitHub
 	if ! is_a_github_user "$repo_owner"; then
     echo "${BOLD} Sorry, there is ${GREEN}no user ${RESET_COLOR}named" \
       "${LIGHT_BLUE}$repo_owner ${RESET_COLOR}on GitHub ${RESET}"

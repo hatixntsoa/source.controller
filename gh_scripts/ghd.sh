@@ -27,31 +27,31 @@ function ghd {
 		delete_repo "$repo_name"
 	else
 		if is_a_git_repo; then
-			if has_remote; then
-				if connected; then
-					if ! gh_installed; then
-						echo "${BOLD} gh is not installed !${RESET}"
-						return 0
-					fi
+			echo "${BOLD} This won't work, you are not in a git repo!${RESET}"
+			return 0
+		fi
 
-					repo_url=$(git config --get remote.origin.url)
-					current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
-					repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
+		if has_remote; then
+			if connected; then
+				if ! gh_installed; then
+					echo "${BOLD} gh is not installed !${RESET}"
+					return 0
+				fi
 
-					if [ "$repo_owner" != "$current_user" ]; then
-						echo "${BOLD} Sorry, you are not the owner of this repo!${RESET}"
-					else
-						repo_name=$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')
-						isPrivate=$(gh repo view "$repo_name" --json isPrivate --jq '.isPrivate')
-						repo_visibility=$([ "$isPrivate" = "true" ] && echo "private" || echo "public")
+				repo_url=$(git config --get remote.origin.url)
+				current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
+				repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
 
-						delete_repo "$repo_name"
-						git remote remove origin
-						echo
-						delete_local_repo "$repo_name"
-					fi
+				if [ "$repo_owner" != "$current_user" ]; then
+					echo "${BOLD} Sorry, you are not the owner of this repo!${RESET}"
 				else
-					repo_name=$(basename "$(git rev-parse --show-toplevel)")
+					repo_name=$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')
+					isPrivate=$(gh repo view "$repo_name" --json isPrivate --jq '.isPrivate')
+					repo_visibility=$([ "$isPrivate" = "true" ] && echo "private" || echo "public")
+
+					delete_repo "$repo_name"
+					git remote remove origin
+					echo
 					delete_local_repo "$repo_name"
 				fi
 			else
@@ -59,7 +59,8 @@ function ghd {
 				delete_local_repo "$repo_name"
 			fi
 		else
-			echo "${BOLD} This won't work, you are not in a git repo!${RESET}"
+			repo_name=$(basename "$(git rev-parse --show-toplevel)")
+			delete_local_repo "$repo_name"
 		fi
 	fi
 }
