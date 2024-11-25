@@ -26,7 +26,7 @@ function ghd {
 
 		delete_repo "$repo_name"
 	else
-		if is_a_git_repo; then
+		if ! is_a_git_repo; then
 			echo "${BOLD} This won't work, you are not in a git repo!${RESET}"
 			return 0
 		fi
@@ -94,10 +94,10 @@ source "$HELPS_DIR/$HELP_FILE"
 
 # Usage function to display help
 function usage {
-	show_help "Usage" "${ghd_arguments[@]}"
-	show_help "Description" "${ghd_descriptions[@]}"
-	show_help "Options" "${ghd_options[@]}"
-	exit 0
+  show_help "Usage" "${ghd_arguments[@]}"
+  show_help "Description" "${ghd_descriptions[@]}"
+  show_help "Options" "${ghd_options[@]}"
+  exit 0
 }
 
 # Check if --help is the first argument
