@@ -146,9 +146,9 @@ source "$HELPS_DIR/$HELP_FILE"
 # Usage function to display help
 function usage {
   show_help "Usage" "${ghc_arguments[@]}"
-	show_help "Description" "${ghc_descriptions[@]}"
-	show_help "Options" "${ghc_options[@]}"
-	show_extra "${ghc_extras[@]}"
+  show_help "Description" "${ghc_descriptions[@]}"
+  show_help "Options" "${ghc_options[@]}"
+  show_extra "${ghc_extras[@]}"
   exit 0
 }
 

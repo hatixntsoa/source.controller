@@ -31,9 +31,9 @@ source "$HELPS_DIR/$HELP_FILE"
 # Usage function to display help
 function usage {
   show_help "Usage" "${gst_arguments[@]}"
-	show_help "Description" "${gst_descriptions[@]}"
-	show_help "Options" "${gst_options[@]}"
-	show_extra "${gst_extras[@]}"
+  show_help "Description" "${gst_descriptions[@]}"
+  show_help "Options" "${gst_options[@]}"
+  show_extra "${gst_extras[@]}"
   exit 0
 }
 

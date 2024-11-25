@@ -77,9 +77,9 @@ source "$HELPS_DIR/$HELP_FILE"
 # Usage function to display help
 function usage {
   show_help "Usage" "${ghdel_arguments[@]}"
-	show_help "Description" "${ghdel_descriptions[@]}"
-	show_help "Options" "${ghdel_options[@]}"
-	show_extra "${ghdel_extras[@]}"
+  show_help "Description" "${ghdel_descriptions[@]}"
+  show_help "Options" "${ghdel_options[@]}"
+  show_extra "${ghdel_extras[@]}"
   exit 0
 }
 

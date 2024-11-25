@@ -145,9 +145,9 @@ source "$HELPS_DIR/$HELP_FILE"
 # Usage function to display help
 function usage {
   show_help "Usage" "${gck_arguments[@]}"
-	show_help "Description" "${gck_descriptions[@]}"
-	show_help "Options" "${gck_options[@]}"
-	show_extra "${gck_extras[@]}"
+  show_help "Description" "${gck_descriptions[@]}"
+  show_help "Options" "${gck_options[@]}"
+  show_extra "${gck_extras[@]}"
   exit 0
 }
 

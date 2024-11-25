@@ -45,9 +45,9 @@ source "$HELPS_DIR/$HELP_FILE"
 # Usage function to display help
 function usage {
   show_help "Usage" "${gmb_arguments[@]}"
-	show_help "Description" "${gmb_descriptions[@]}"
-	show_help "Options" "${gmb_options[@]}"
-	show_help "Examples" "${gmb_extras[@]}"
+  show_help "Description" "${gmb_descriptions[@]}"
+  show_help "Options" "${gmb_options[@]}"
+  show_help "Examples" "${gmb_extras[@]}"
   exit 0
 }
 

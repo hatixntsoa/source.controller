@@ -10,7 +10,7 @@ function grst {
 			# Loop through each argument and check if it's a file
 			for arg in "$@"; do
 				if [ ! -f "$arg" ]; then
-					echo "${BOLD}${RESET_COLOR} ■■▶ Sorry, only restore file(s). ${LIGHT_BLUE}'$arg'${RESET_COLOR} is not a valid file."
+					echo "${BOLD}${RESET_COLOR} Sorry, only restore file(s). ${LIGHT_BLUE}'$arg'${RESET_COLOR} is not a valid file."
 					exit 1
 				fi
 			done
@@ -18,7 +18,7 @@ function grst {
 			git restore "$@"
 		fi
 	else
-		echo "${BOLD}${RESET_COLOR} ■■▶ This won't work, you are not in a git repo !"
+		echo "${BOLD}${RESET_COLOR} This won't work, you are not in a git repo !"
 	fi
 }
 
@@ -45,9 +45,9 @@ source "$HELPS_DIR/$HELP_FILE"
 # Usage function to display help
 function usage {
   show_help "Usage" "${grst_arguments[@]}"
-	show_help "Description" "${grst_descriptions[@]}"
-	show_help "Options" "${grst_options[@]}"
-	show_extra "${grst_extras[@]}"
+  show_help "Description" "${grst_descriptions[@]}"
+  show_help "Options" "${grst_options[@]}"
+  show_extra "${grst_extras[@]}"
   exit 0
 }
 

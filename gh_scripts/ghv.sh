@@ -94,9 +94,9 @@ source "$HELPS_DIR/$HELP_FILE"
 # Usage function to display help
 function usage {
   show_help "Usage" "${ghv_arguments[@]}"
-	show_help "Description" "${ghv_descriptions[@]}"
-	show_help "Options" "${ghv_options[@]}"
-	show_extra "${ghv_extras[@]}"
+  show_help "Description" "${ghv_descriptions[@]}"
+  show_help "Options" "${ghv_options[@]}"
+  show_extra "${ghv_extras[@]}"
   exit 0
 }
 

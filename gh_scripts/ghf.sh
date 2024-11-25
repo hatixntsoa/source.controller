@@ -16,9 +16,9 @@ function ghf {
 
   	# Check if the owner exists on GitHub
 	if ! is_a_github_user "$repo_owner"; then
-    echo "${BOLD} Sorry, there is ${GREEN}no user ${RESET_COLOR}named" \
-      "${LIGHT_BLUE}$repo_owner ${RESET_COLOR}on GitHub ${RESET}"
-    return 0
+    	echo "${BOLD} Sorry, there is ${GREEN}no user ${RESET_COLOR}named" \
+        	"${LIGHT_BLUE}$repo_owner ${RESET_COLOR}on GitHub ${RESET}"
+      	return 0
 	fi
 
 
@@ -82,9 +82,9 @@ source "$HELPS_DIR/$HELP_FILE"
 # Usage function to display help
 function usage {
   show_help "Usage" "${ghf_arguments[@]}"
-	show_help "Description" "${ghf_descriptions[@]}"
-	show_help "Options" "${ghf_options[@]}"
-	show_help "Example" "${ghf_extras[@]}"
+  show_help "Description" "${ghf_descriptions[@]}"
+  show_help "Options" "${ghf_options[@]}"
+  show_help "Example" "${ghf_extras[@]}"
   exit 0
 }
 

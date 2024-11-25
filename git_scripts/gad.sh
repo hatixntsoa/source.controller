@@ -49,11 +49,11 @@ source "$HELPS_DIR/$HELP_FILE"
 
 # Usage function to display help
 function usage {
-	show_help "Usage" "${gad_arguments[@]}"
-	show_help "Description" "${gad_descriptions[@]}"
-	show_help "Options" "${gad_options[@]}"
-	show_extra "${gad_extras[@]}"
-	exit 0
+  show_help "Usage" "${gad_arguments[@]}"
+  show_help "Description" "${gad_descriptions[@]}"
+  show_help "Options" "${gad_options[@]}"
+  show_extra "${gad_extras[@]}"
+  exit 0
 }
 
 # Check if --help is the first argument

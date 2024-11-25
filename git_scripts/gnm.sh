@@ -8,12 +8,12 @@ function gnm {
 			git branch -M $current_branch "$1"
 			cv
 		elif [ $# -eq 0 ]; then
-			echo "${BOLD}${RESET_COLOR} ■■▶ Please pass the new name of '$current_branch' branch as argument "
+			echo "${BOLD}${RESET_COLOR} Please pass the new name of '$current_branch' branch as argument "
 		else
-			echo "${BOLD}${RESET_COLOR} ■■▶ Usage : gnm new_name_of_the_branch"
+			echo "${BOLD}${RESET_COLOR} Usage : gnm new_name_of_the_branch"
 		fi
 	else
-		echo "${BOLD}${RESET_COLOR} ■■▶ This won't work, you are not in a git repo !"
+		echo "${BOLD}${RESET_COLOR} This won't work, you are not in a git repo !"
 	fi
 }
 
@@ -40,9 +40,9 @@ source "$HELPS_DIR/$HELP_FILE"
 # Usage function to display help
 function usage {
   show_help "Usage" "${gnm_arguments[@]}"
-	show_help "Description" "${gnm_descriptions[@]}"
-	show_help "Options" "${gnm_options[@]}"
-	show_help "Examples" "${gnm_extras[@]}"
+  show_help "Description" "${gnm_descriptions[@]}"
+  show_help "Options" "${gnm_options[@]}"
+  show_help "Examples" "${gnm_extras[@]}"
   exit 0
 }
 

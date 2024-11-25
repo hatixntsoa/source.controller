@@ -54,9 +54,9 @@ source "$HELPS_DIR/$HELP_FILE"
 # Usage function to display help
 function usage {
   show_help "Usage" "${gpl_arguments[@]}"
-	show_help "Description" "${gpl_descriptions[@]}"
-	show_help "Options" "${gpl_options[@]}"
-	show_extra "${gpl_extras[@]}"
+  show_help "Description" "${gpl_descriptions[@]}"
+  show_help "Options" "${gpl_options[@]}"
+  show_extra "${gpl_extras[@]}"
   exit 0
 }
 

@@ -47,9 +47,9 @@ source "$HELPS_DIR/$HELP_FILE"
 # Usage function to display help
 function usage {
   show_help "Usage" "${gpsh_arguments[@]}"
-	show_help "Description" "${gpsh_descriptions[@]}"
-	show_help "Options" "${gpsh_options[@]}"
-	show_help "${gpsh_extras[@]}"
+  show_help "Description" "${gpsh_descriptions[@]}"
+  show_help "Options" "${gpsh_options[@]}"
+  show_help "${gpsh_extras[@]}"
   exit 0
 }
 

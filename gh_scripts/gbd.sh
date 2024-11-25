@@ -75,7 +75,7 @@ function gbd {
 			fi
 		elif [ $# -eq 0 ]; then
 			if [ "$current_branch" = "$default_branch" ]; then
-				echo "${BOLD}${RESET_COLOR} ■■▶ Fatal ! Cannot Delete the Default Branch "
+				echo "${BOLD}${RESET_COLOR} Fatal ! Cannot Delete the Default Branch "
 			else
 				check_delete_branch() {
 					printf "${BOLD}${RESET_COLOR}Delete branch${GREEN} "$current_branch"${RESET_COLOR} ? (y/n) ${RESET}"
@@ -84,7 +84,7 @@ function gbd {
 						# TODO : Remote branch Deletion
 						check_delete_remote_branch() {
 							if [ "$current_branch" = "$default_branch" ]; then
-								echo "${BOLD}${RESET_COLOR} ■■▶ Fatal ! Cannot Delete the Default Branch "
+								echo "${BOLD}${RESET_COLOR} Fatal ! Cannot Delete the Default Branch "
 							else
 								printf "${BOLD}${RESET_COLOR}Delete remote branch${GREEN} "$current_branch"${RESET_COLOR} ? (y/n) ${RESET}"
 								read delete_remote_branch
@@ -131,10 +131,10 @@ function gbd {
 				check_delete_branch
 			fi
 		else
-			echo "${BOLD}${RESET_COLOR} ■■▶ Usage : gbd branch_to_delete"
+			echo "${BOLD}${RESET_COLOR} Usage : gbd branch_to_delete"
 		fi
 	else
-		echo "${BOLD}${RESET_COLOR} ■■▶ This won't work, you are not in a git repo !"
+		echo "${BOLD}${RESET_COLOR} This won't work, you are not in a git repo !"
 	fi
 }
 
@@ -163,9 +163,9 @@ source "$HELPS_DIR/$HELP_FILE"
 # Usage function to display help
 function usage {
   show_help "Usage" "${gbd_arguments[@]}"
-	show_help "Description" "${gbd_descriptions[@]}"
-	show_help "Options" "${gbd_options[@]}"
-	show_extra "${gbd_extras[@]}"
+  show_help "Description" "${gbd_descriptions[@]}"
+  show_help "Options" "${gbd_options[@]}"
+  show_extra "${gbd_extras[@]}"
   exit 0
 }
 

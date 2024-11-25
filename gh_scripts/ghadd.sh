@@ -65,9 +65,9 @@ source "$HELPS_DIR/$HELP_FILE"
 # Usage function to display help
 function usage {
   show_help "Usage" "${ghadd_arguments[@]}"
-	show_help "Description" "${ghadd_descriptions[@]}"
-	show_help "Options" "${ghadd_options[@]}"
-	show_extra "${ghadd_extras[@]}"
+  show_help "Description" "${ghadd_descriptions[@]}"
+  show_help "Options" "${ghadd_options[@]}"
+  show_extra "${ghadd_extras[@]}"
   exit 0
 }
 
