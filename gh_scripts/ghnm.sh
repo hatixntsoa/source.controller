@@ -1,39 +1,39 @@
 #!/bin/bash
 
 function ghnm {
-  # Check if we are inside a git repo
-  if ! load_and_delete \
-    "${BOLD} Checking the ${GREEN}local ${RESET_COLOR}git" \
+	# Check if we are inside a git repo
+	if ! load_and_delete \
+		"${BOLD} Checking the ${GREEN}local ${RESET_COLOR}git" \
 		"${LIGHT_BLUE}repo ${RESET_COLOR}" \
-    "is_a_git_repo"; then
-    echo "${BOLD} This won't work, you are not in a git repo !"
-    return 0
-  fi
+		"is_a_git_repo"; then
+		echo "${BOLD} This won't work, you are not in a git repo !"
+		return 0
+	fi
 
-  # Check if the repo has a remote
-  if ! load_and_delete \
-    "${BOLD} Checking the ${GREEN}remote ${RESET_COLOR}git" \
+	# Check if the repo has a remote
+	if ! load_and_delete \
+		"${BOLD} Checking the ${GREEN}remote ${RESET_COLOR}git" \
 		"${LIGHT_BLUE}repo ${RESET_COLOR}on GitHub" \
-    "has_remote"; then
-    echo "${BOLD} This repo has no remote on GitHub !"
-    return 0
-  fi
+		"has_remote"; then
+		echo "${BOLD} This repo has no remote on GitHub !"
+		return 0
+	fi
 
-  # Define the new name of the repo
-  new_name="$1"
-  repo_url=$(git config --get remote.origin.url)
-  repo_name=$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')
+	# Define the new name of the repo
+	new_name="$1"
+	repo_url=$(git config --get remote.origin.url)
+	repo_name=$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')
 
-  if [ "$new_name" == "$repo_name" ]; then
-    echo "${BOLD} The ${GREEN}remote ${RESET_COLOR}repo name is" \
-      "${LIGHT_BLUE}$repo_name ${RESET}"
-    return 0
-  fi
+	if [ "$new_name" == "$repo_name" ]; then
+		echo "${BOLD} The ${GREEN}remote ${RESET_COLOR}repo name is" \
+			"${LIGHT_BLUE}$repo_name ${RESET}"
+		return 0
+	fi
 
-  execute_with_loading \
-    "${BOLD} Renaming ${GREEN}remote ${RESET_COLOR}repo" \
-    "${LIGHT_BLUE}$repo_name ${RESET_COLOR}to ${LIGHT_BLUE}$new_name ${RESET}... " \
-    "gh repo rename "$new_name" --yes"
+	execute_with_loading \
+		"${BOLD} Renaming ${GREEN}remote ${RESET_COLOR}repo" \
+		"${LIGHT_BLUE}$repo_name ${RESET_COLOR}to ${LIGHT_BLUE}$new_name ${RESET_COLOR}" \
+		"gh repo rename "$new_name" --yes"
 }
 
 # Resolve the full path to the script's directory
@@ -64,11 +64,11 @@ source "$HELPS_DIR/$HELP_FILE"
 
 # Usage function to display help
 function usage {
-  show_help "Usage" "${ghnm_arguments[@]}"
-  show_help "Description" "${ghnm_descriptions[@]}"
-  show_help "Options" "${ghnm_options[@]}"
-  show_help "Example" "${ghnm_extras[@]}"
-  exit 0
+	show_help "Usage" "${ghnm_arguments[@]}"
+	show_help "Description" "${ghnm_descriptions[@]}"
+	show_help "Options" "${ghnm_options[@]}"
+	show_help "Example" "${ghnm_extras[@]}"
+	exit 0
 }
 
 # Check if --help is the first argument
