@@ -2,7 +2,7 @@
 
 function gdf {
   if is_a_git_repo; then
-    git diff
+    git diff ${1:-}
   else
     echo "${BOLD} This won't work, you are not in a git repo !";
   fi
@@ -48,4 +48,4 @@ allow_sudo
 setup_git
 
 # Call gdf function
-gdf
+gdf "$@"
