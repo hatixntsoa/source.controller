@@ -5,7 +5,7 @@ function gmb {
 		current_branch=$(git branch | awk '/\*/ {print $2}')
 		if [ $# -eq 1 ]; then
 			# check if the branch doesn't exist
-			if ! git rev-parse --verify "$1" >/dev/null 2>&1; then
+			if ! is_a_git_branch "$1"; then
 				echo "${BOLD} Fatal ! $1 is a Non Existing branch "
 			else
 				if [ "$current_branch" = "$1" ]; then
@@ -34,6 +34,7 @@ UTILS_DIR="$PARENT_DIR/utils"
 
 # Import necessary variables and functions
 source "$UTILS_DIR/check_git.sh"
+source "$UTILS_DIR/check_branch.sh"
 source "$UTILS_DIR/setup_git.sh"
 source "$UTILS_DIR/check_sudo.sh"
 source "$UTILS_DIR/colors.sh"

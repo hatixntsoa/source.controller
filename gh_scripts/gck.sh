@@ -24,7 +24,7 @@ function gck {
 				git checkout "$default_branch"
 			else
 				user="$(whoami)"
-				if ! git rev-parse --verify "$user" >/dev/null 2>&1; then
+				if ! is_a_git_branch "$user"; then
 					check_new_branch() {
 						printf "${BOLD}${RESET_COLOR}New branch${GREEN} "$user"${RESET_COLOR} ? (y/n) "
 						read branch
@@ -68,7 +68,7 @@ function gck {
 			fi
 		elif [ $# -eq 1 ]; then
 			# check if the branch doesn't exist yet
-			if ! git rev-parse --verify "$1" >/dev/null 2>&1; then
+			if ! is_a_git_branch "$1" >/dev/null 2>&1; then
 				new_branch="$1"
 				check_new_branch() {
 					printf "${BOLD}${RESET_COLOR}New branch${GREEN} "$new_branch"${RESET_COLOR} ? (y/n) "
@@ -135,6 +135,7 @@ source "$UTILS_DIR/check_remote.sh"
 source "$UTILS_DIR/check_git.sh"
 source "$UTILS_DIR/check_gh.sh"
 source "$UTILS_DIR/setup_git.sh"
+source "$UTILS_DIR/setup_branch.sh"
 source "$UTILS_DIR/check_sudo.sh"
 source "$UTILS_DIR/colors.sh"
 source "$UTILS_DIR/usage.sh"
