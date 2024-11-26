@@ -16,8 +16,13 @@ function ghd {
 		current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
 
 		# Check if the repo doesn't exist
-		if ! is_a_github_repo "$current_user/$repo_name"; then
-			echo "${BOLD} Sorry, there is ${GREEN}no repo ${RESET_COLOR}such as ${LIGHT_BLUE}$current_user/$repo_name ${RESET_COLOR}on GitHub ${RESET}"
+		if ! load_and_delete \
+			"${BOLD} Checking the ${GREEN}repo ${RESET_COLOR} named" \
+			"${LIGHT_BLUE}$current_user/$repo_name ${RESET_COLOR}on GitHub" \
+			"is_a_github_repo $current_user/$repo_name"; then
+			
+			echo "${BOLD} Sorry, there is ${GREEN}no repo ${RESET_COLOR}such as " \
+				"${LIGHT_BLUE}$current_user/$repo_name ${RESET_COLOR}on GitHub ${RESET}"
 			return 0
 		fi
 
@@ -112,14 +117,14 @@ setup_git
 
 # Function to delete local repo
 function delete_local_repo {
-	printf "${BOLD}${RESET} Delete ${GREEN}local ${RESET}repo ${LIGHT_BLUE}$1 ${RESET}? (y/n) ${RESET}"
+	printf "${BOLD}${RESET} Delete ${GREEN}local ${RESET_COLOR}repo ${LIGHT_BLUE}$1 ${RESET}? (y/n) ${RESET}"
 	read delete_local_repo
 
 	if [ "$delete_local_repo" = "y" ]; then
 		local repo_source=$(git rev-parse --show-toplevel)
 
 		execute_with_loading \
-			"${BOLD} Deleting ${GREEN}local ${RESET}repo ${LIGHT_BLUE}$1 ${RESET}... " \
+			"${BOLD} Deleting ${GREEN}local ${RESET_COLOR}repo ${LIGHT_BLUE}$1 ${RESET}... " \
 			"rm -rf "$repo_source/.git""
 	elif [ "$delete_local_repo" = "n" ]; then
 		return 0

@@ -14,41 +14,52 @@ function ghf {
 		usage
 	fi
 
-  	# Check if the owner exists on GitHub
-	if ! is_a_github_user "$repo_owner"; then
-    	echo "${BOLD} Sorry, there is ${GREEN}no user ${RESET_COLOR}named" \
-        	"${LIGHT_BLUE}$repo_owner ${RESET_COLOR}on GitHub ${RESET}"
-      	return 0
+	# Check if we have already forked it
+	if load_and_delete \
+		"${BOLD} Checking the forked ${GREEN}repo ${RESET_COLOR} named" \
+		"${LIGHT_BLUE}$current_user/$repo_name ${RESET_COLOR}on GitHub" \
+	  "is_a_github_repo $current_user/$repo_name"; then
+		echo "${BOLD} You have already ${RED}forked ${RESET_COLOR}the repo named" \
+			"${GREEN}$repo_name ${RESET_COLOR}on ${LIGHT_BLUE}GitHub ${RESET}"
+		return 0
 	fi
 
+  # Check if the owner exists on GitHub
+	if ! load_and_delete \
+		"${BOLD} Checking the ${GREEN}user ${RESET_COLOR}named" \
+		"${LIGHT_BLUE}$repo_owner ${RESET_COLOR}on GitHub" \
+		"is_a_github_user $repo_owner"; then
+		echo "${BOLD} Sorry, there is ${GREEN}no user ${RESET_COLOR}named" \
+				"${LIGHT_BLUE}$repo_owner ${RESET_COLOR}on GitHub ${RESET}"
+			return 0
+	fi
 
 	# Check if the repo doesn't exist
-	if ! is_a_github_repo $repo_owner/$repo_name; then
+	if ! load_and_delete \
+		"${BOLD} Checking the ${GREEN}repo ${RESET_COLOR}named" \
+		"${LIGHT_BLUE}$repo_owner/$repo_name ${RESET_COLOR}on GitHub" \
+	  "is_a_github_repo $repo_owner/$repo_name"; then
 		echo "${BOLD} Sorry, there is ${GREEN}no repo ${RESET_COLOR}such" \
 			"${LIGHT_BLUE}$repo_owner/$repo_name ${RESET_COLOR}on GitHub ${RESET}"
 		return 0
 	fi
 
-	# Check if we have already forked it
-	if is_a_github_repo $current_user/$repo_name; then
-		echo "${BOLD} You have already ${RED}forked ${RESET_COLOR} the repo named" \
-			"${GREEN}$repo_name ${RESET_COLOR}on ${LIGHT_BLUE}GitHub ${RESET}"
-		return 0
-	fi
-
-	if is_a_git_repo; then
+	if load_and_delete \
+    "${BOLD} Checking the ${GREEN}local ${RESET_COLOR}git" \
+		"${LIGHT_BLUE}repo ${RESET_COLOR}" \
+    "is_a_git_repo"; then
 		printf "${BOLD}${GREEN} Local Git${RESET_COLOR} repo detected," \
 		 	"skipping fork clone for ${LIGHT_BLUE}$repo_name ${RESET}\n"
 		clone_repo=""
 	fi
 
 	if execute_with_loading \
-		"${BOLD} Forking ${LIGHT_BLUE}$repo_name ${RESET_COLOR}on GitHub ... " \
+		"${BOLD} Forking ${LIGHT_BLUE}$repo_name ${RESET_COLOR}on GitHub" \
 		"gh repo fork $repo_owner/$repo_name"; then
 
 		if [ "$clone_repo" == "--clone" ]; then
 			execute_with_loading \
-				"${BOLD} Cloning fork ${LIGHT_BLUE}$repo_name ${RESET_COLOR}locally ... " \
+				"${BOLD} Cloning fork ${LIGHT_BLUE}$repo_name ${RESET_COLOR}locally" \
 				"gh repo clone $current_user/$repo_name"
 		fi
 	fi
