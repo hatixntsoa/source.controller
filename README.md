@@ -45,6 +45,7 @@ ls -l $(whereis sh | grep -o '/[^ ]*/bin' | head -n 1) | grep 'git_gh' | awk '{p
 | **Name** | **Usage** |
 |----------|-----------|
 | `ghc`    | Create a new repository |
+| `ghf`    | Fork a repository |
 | `ghd`    | Delete an existing repository |
 | `ghv`    | View and toggle an existing repository's visibility |
 | `gck`    | Create a new branch locally and remotely |
