@@ -52,7 +52,7 @@ function ghdel {
 		else
 			echo "${BOLD}${LIGHT_BLUE}$collaborator ${RESET_COLOR}is not a ${LIGHT_BLUE}collaborator ${RED}✘ ${RESET_COLOR}"
 		fi
-		done
+	done
 }
 
 # Resolve the full path to the script's directory
