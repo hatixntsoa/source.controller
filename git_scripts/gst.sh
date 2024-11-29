@@ -1,11 +1,13 @@
 #!/bin/bash
 
 function gst {
-	if is_a_git_repo; then
-		git status -s
-	else
-		echo "${BOLD} This won't work, you are not in a git repo !"
-	fi
+	if ! is_a_git_repo; then
+    echo "${BOLD} This won't work, you are not in a git repo !"
+    return 0
+  fi
+
+  # Get the status
+	git status -s
 }
 
 # Resolve the full path to the script's directory

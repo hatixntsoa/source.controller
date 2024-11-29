@@ -1,25 +1,24 @@
 #!/bin/bash
 
 function gpsh {
-	if is_a_git_repo; then
-		current_branch=$(git branch | awk '/\*/ {print $2}')
-
-		if has_remote; then
-			repo_url=$(git config --get remote.origin.url)
-			repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
-		else
-			repo_name=$(basename "$(git rev-parse --show-toplevel)")
-		fi
-
-		# check if it has a remote to push
-		if has_remote; then
-			git push origin $current_branch
-		else
-			echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}has ${RED}no remote"
-		fi
-	else
+	if ! is_a_git_repo; then
 		echo "${BOLD} This won't work, you are not in a git repo !"
+		return 0
 	fi
+
+	# Get the repo name
+	repo_name=$(basename "$(git rev-parse --show-toplevel)")
+
+	# check if it has a remote to push
+	if ! has_remote; then
+		echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}has ${RED}no remote"
+		return 0
+	fi
+
+	current_branch=$(git branch | awk '/\*/ {print $2}')
+
+	# Push changes to remote branch
+	git push origin $current_branch
 }
 
 # Resolve the full path to the script's directory

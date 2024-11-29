@@ -1,11 +1,12 @@
 #!/bin/bash
 
 function gdf {
-  if is_a_git_repo; then
-    git diff ${1:-}
-  else
+  if ! is_a_git_repo; then
     echo "${BOLD} This won't work, you are not in a git repo !";
+    return 0
   fi
+    
+  git diff ${1:-}
 }
 
 # Resolve the full path to the script's directory

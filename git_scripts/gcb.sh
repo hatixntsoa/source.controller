@@ -1,15 +1,18 @@
 #!/bin/bash
 
 function gcb {
-	if is_a_git_repo; then
-		if [ $# -eq 0 ]; then
-			git checkout -
-		else
-			echo "${BOLD}${RESET_COLOR} Usage : gcb (no argument)"
-		fi
-	else
+	if ! is_a_git_repo; then
 		echo "${BOLD}${RESET_COLOR} This won't work, you are not in a git repo !"
+		return 0
 	fi
+
+	if [ $# -eq 0 ]; then
+		git checkout -
+		return 0
+	fi
+	
+	# Wrong command
+	echo "${BOLD}${RESET_COLOR} Usage : gcb (no argument)"
 }
 
 # Resolve the full path to the script's directory

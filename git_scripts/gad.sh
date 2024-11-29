@@ -1,30 +1,31 @@
 #!/bin/bash
 
 function gad {
-	if is_a_git_repo; then
-		if [ $# -eq 0 ]; then
-			# If no arguments, add all changes and commit (opens editor for commit message)
-			git add --all && git commit
-		elif [ $# -ge 1 ]; then
-			if [ -f "$1" ]; then
-				if [ $# -eq 1 ]; then
-					# File is specified but no commit message
-					echo "${BOLD}${RED}Error: no commit message!${RESET}"
-				else
-					# Add the file and commit with message from arguments 2 onwards
-					git add "$1" && git commit "$1" -m "${*:2}"
-				fi
-			elif [ "$1" = "--help" ]; then
-				# Check if the first argument is --help
-				usage
-			else
-				# Add all changes and commit with the provided message
-				git add --all && git commit -m "$*"
-			fi
-		fi
-	else
+	if ! is_a_git_repo; then
 		echo "${BOLD} This won't work, you are not in a git repo!${RESET}"
+		return 0
 	fi
+
+	if [ $# -eq 0 ]; then
+		# If no arguments, add all changes and commit (opens editor for commit message)
+		git add --all && git commit
+		return 0
+	fi
+
+	if [ $# -lt 1 ]; then
+		# File is specified but no commit message
+		echo "${BOLD}${RED}Error: no commit message!${RESET}"
+		return 0
+	fi
+
+	if [ -f "$1" ]; then
+		# Add the file and commit with message from arguments 2 onwards
+		git add "$1" && git commit "$1" -m "${*:2}"
+		return 0
+	fi
+
+	# Add all changes and commit with the provided message
+	git add --all && git commit -m "$*"
 }
 
 # Resolve the full path to the script's directory

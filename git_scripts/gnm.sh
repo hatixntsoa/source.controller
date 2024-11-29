@@ -1,20 +1,24 @@
 #!/bin/bash
 
 function gnm {
-	if is_a_git_repo; then
-		current_branch=$(git branch | awk '/\*/ {print $2}')
-
-		if [ $# -eq 1 ]; then
-			git branch -M $current_branch "$1"
-			cv
-		elif [ $# -eq 0 ]; then
-			echo "${BOLD}${RESET_COLOR} Please pass the new name of '$current_branch' branch as argument "
-		else
-			echo "${BOLD}${RESET_COLOR} Usage : gnm new_name_of_the_branch"
-		fi
-	else
+	if ! is_a_git_repo; then
 		echo "${BOLD}${RESET_COLOR} This won't work, you are not in a git repo !"
+		return 0
 	fi
+
+	if [ $# -eq 0 ]; then
+		echo "${BOLD}${RESET_COLOR} Please pass the new name of '$current_branch' branch as argument "
+		return 0
+	fi
+
+	current_branch=$(git branch | awk '/\*/ {print $2}')
+
+	if [ $# -eq 1 ]; then
+		git branch -M $current_branch "$1"
+		return 0
+	fi
+
+	echo "${BOLD}${RESET_COLOR} Usage : gnm new_name_of_the_branch"
 }
 
 # Resolve the full path to the script's directory

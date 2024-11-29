@@ -1,32 +1,32 @@
 #!/bin/bash
 
 function gpl {
-	if is_a_git_repo; then
-		if has_remote; then
-			repo_url=$(git config --get remote.origin.url)
-			repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
-		else
-			repo_name=$(basename "$(git rev-parse --show-toplevel)")
-		fi
-		
-		current_branch=$(git branch | awk '/\*/ {print $2}')
-
-		# check if it has a remote to push
-		if has_remote; then
-			is_remote_branch=$(git branch -r | grep "origin/$current_branch")
-
-			# check if the current branch has remote
-			if [ -n "$is_remote_branch" ]; then
-				git pull origin $current_branch
-			else
-				echo "${BOLD} The remote repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}has no branch named ${GREEN}$current_branch ${RESET_COLOR}!"
-			fi
-		else
-			echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}has ${RED}no remote"
-		fi
-	else
+	if ! is_a_git_repo; then
 		echo "${BOLD} This won't work, you are not in a git repo !"
+		return 0
 	fi
+
+	# check if it has a remote to push
+	if ! has_remote; then
+		repo_name=$(basename "$(git rev-parse --show-toplevel)")
+		echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}has ${RED}no remote"
+		return 0
+	fi
+
+	repo_url=$(git config --get remote.origin.url)
+	repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
+	current_branch=$(git branch | awk '/\*/ {print $2}')
+	is_remote_branch=$(git branch -r | grep "origin/$current_branch")
+
+	# check if the current branch has remote
+	if [ -z "$is_remote_branch" ]; then
+		echo "${BOLD} The remote repo ${LIGHT_BLUE}$repo_name" \
+			"${RESET_COLOR}has no branch named ${GREEN}$current_branch ${RESET_COLOR}!"
+		return 0
+	fi
+
+	# Pull changes from remote branch
+	git pull origin $current_branch
 }
 
 # Resolve the full path to the script's directory
