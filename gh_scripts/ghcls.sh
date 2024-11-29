@@ -1,54 +1,61 @@
 #!/bin/bash
 
 function ghcls {
-	if is_a_git_repo; then
-		if has_remote; then
-			current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
-			repo_url=$(git config --get remote.origin.url)
-			repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
-			repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
-
-			# check if we are not the owner of the repo
-			if [ "$repo_owner" != "$current_user" ]; then
-				echo "${BOLD} Sorry, you are not the owner of this repo !"
-			else
-				printf "${BOLD} ${LIGHT_BLUE}Collaborators ${RESET_COLOR}for the ${LIGHT_BLUE}$repo_name ${RESET_COLOR}repository "
-
-				# List collaborators using gh api
-				collaborators=$(gh api "repos/$current_user/$repo_name/collaborators" --jq '.[].login')
-				invitations=$(gh api "repos/$current_user/$repo_name/invitations" --jq '.[].invitee.login')
-
-				collaborators_count=$(echo "$collaborators" | wc -l)
-				invitations_count=$(echo "$invitations" | wc -l)
-				collaborators_num=$((collaborators_count + invitations_count))
-				echo "${RESET_COLOR}${BOLD}($collaborators_count)"
-
-				# Iterate through each collaborator
-				if [ -n "$collaborators" ]; then
-					echo "$collaborators" | while IFS= read -r collaborator; do
-						if [ "$collaborator" = "$current_user" ]; then
-							echo " ● $collaborator (owner)"
-						else
-							echo " ● $collaborator"
-						fi
-					done
-				else
-					echo "No collaborators found."
-				fi
-
-				# Check if there are pending invitations
-				if [ -n "$invitations" ]; then
-					# Print pending invitations
-					echo "$invitations" | while IFS= read -r invitee; do
-						echo " ● $invitee (invitation pending)"
-					done
-				fi
-			fi
-		else
-			echo "${BOLD} This repo has no remote on GitHub !"
-		fi
-	else
+	# Check for git local repo
+	if ! is_a_git_repo; then
 		echo "${BOLD} This won't work, you are not in a git repo !"
+		return 0
+	fi
+
+	# Check for remote repo
+	if ! has_remote; then
+		echo "${BOLD} This repo has no remote on GitHub !"
+		return 0
+	fi
+
+	current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
+	repo_url=$(git config --get remote.origin.url)
+	repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
+	repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
+
+	# check if we are not the owner of the repo
+	if [ "$repo_owner" != "$current_user" ]; then
+		echo "${BOLD} Sorry, you are not the owner of this repo !"
+		return 0
+	fi
+
+	printf "${BOLD} ${LIGHT_BLUE}Collaborators ${RESET_COLOR}for the ${LIGHT_BLUE}$repo_name ${RESET_COLOR}repository "
+
+	# List collaborators using gh api
+	collaborators=$(gh api "repos/$current_user/$repo_name/collaborators" --jq '.[].login')
+	invitations=$(gh api "repos/$current_user/$repo_name/invitations" --jq '.[].invitee.login')
+
+	collaborators_count=$(echo "$collaborators" | wc -l)
+	invitations_count=$(echo "$invitations" | wc -l)
+	collaborators_num=$((collaborators_count + invitations_count))
+	echo "${RESET_COLOR}${BOLD}($collaborators_count)"
+
+	# Check if we get any collaborators
+	if [ -z "$collaborators" ]; then
+		echo "No collaborators found."
+		return 0
+	fi
+
+	# Iterate through each collaborator
+	echo "$collaborators" | while IFS= read -r collaborator; do
+		if [ "$collaborator" = "$current_user" ]; then
+			echo " ● $collaborator (owner)"
+		else
+			echo " ● $collaborator"
+		fi
+	done
+
+	# Check if there are pending invitations
+	if [ -n "$invitations" ]; then
+		# Print pending invitations
+		echo "$invitations" | while IFS= read -r invitee; do
+			echo " ● $invitee (invitation pending)"
+		done
 	fi
 }
 
