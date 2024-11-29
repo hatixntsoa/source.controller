@@ -1,54 +1,58 @@
 #!/bin/bash
 
 function ghdel {
-	if is_a_git_repo; then
-		if has_remote; then
-			if [ $# -eq 0 ]; then
-				echo "${BOLD} Specify the username of the collaborator to remove !"
-			elif [ $# -gt 0 ]; then
-				current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
-				repo_url=$(git config --get remote.origin.url)
-				repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
-				repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
-
-				# check if we are not the owner of the repo
-				if [ "$repo_owner" != "$current_user" ]; then
-					echo "${BOLD} Sorry, you are not the owner of this repo !"
-				else
-					# Retrieve the list of collaborators
-					collaborators=$(gh api "repos/$current_user/$repo_name/collaborators" --jq '.[].login')
-					invitations=$(gh api "repos/$current_user/$repo_name/invitations" --jq '.[].invitee.login')
-
-					# Loop through each collaborator username provided as an argument
-					for collaborator in "$@"; do
-						# Check if the collaborator exists in the list of collaborators
-						if echo "$collaborators" | grep -q "$collaborator" ||
-							echo "$invitations" | grep -q "$collaborator"; then
-							printf "${BOLD} Removing ${LIGHT_BLUE}$collaborator ${RESET_COLOR}from ${LIGHT_BLUE}$repo_name${RESET_COLOR} "
-							# Check for pending invitations
-							invitation_id=$(gh api "repos/$current_user/$repo_name/invitations" --jq ".[] | select(.invitee.login==\"$collaborator\") | .id")
-
-							if [ -n "$invitation_id" ]; then
-								# Delete the pending invitation
-								gh api --method=DELETE "repos/$current_user/$repo_name/invitations/$invitation_id" >/dev/null 2>&1
-								printf " ${BOLD}(invitation deleted) "
-							fi
-
-							# Remove collaborator using gh api
-							gh api --method=DELETE "repos/$current_user/$repo_name/collaborators/$collaborator" >/dev/null 2>&1
-							echo "${BOLD}${GREEN} ${RESET_COLOR}"
-						else
-							echo "${BOLD}${LIGHT_BLUE}$collaborator ${RESET_COLOR}is not a ${LIGHT_BLUE}collaborator ${RED}✘ ${RESET_COLOR}"
-						fi
-					done
-				fi
-			fi
-		else
-			echo "${BOLD} This repo has no remote on Github !"
-		fi
-	else
+	if ! is_a_git_repo; then
 		echo "${BOLD} This won't work, you are not in a git repo !"
+		return 0
 	fi
+
+	if ! has_remote; then
+		echo "${BOLD} This repo has no remote on Github !"
+		return 0
+	fi
+
+	if [ $# -eq 0 ]; then
+		echo "${BOLD} Specify the username of the collaborator to remove !"
+		return 0
+	fi
+
+	current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
+	repo_url=$(git config --get remote.origin.url)
+	repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
+	repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
+
+	# check if we are not the owner of the repo
+	if [ "$repo_owner" != "$current_user" ]; then
+		echo "${BOLD} Sorry, you are not the owner of this repo !"
+		return 0
+	fi
+
+	# Retrieve the list of collaborators
+	collaborators=$(gh api "repos/$current_user/$repo_name/collaborators" --jq '.[].login')
+	invitations=$(gh api "repos/$current_user/$repo_name/invitations" --jq '.[].invitee.login')
+
+	# Loop through each collaborator username provided as an argument
+	for collaborator in "$@"; do
+		# Check if the collaborator exists in the list of collaborators
+		if echo "$collaborators" | grep -q "$collaborator" ||
+			echo "$invitations" | grep -q "$collaborator"; then
+			printf "${BOLD} Removing ${LIGHT_BLUE}$collaborator ${RESET_COLOR}from ${LIGHT_BLUE}$repo_name${RESET_COLOR} "
+			# Check for pending invitations
+			invitation_id=$(gh api "repos/$current_user/$repo_name/invitations" --jq ".[] | select(.invitee.login==\"$collaborator\") | .id")
+
+			if [ -n "$invitation_id" ]; then
+				# Delete the pending invitation
+				gh api --method=DELETE "repos/$current_user/$repo_name/invitations/$invitation_id" >/dev/null 2>&1
+				printf " ${BOLD}(invitation deleted) "
+			fi
+
+			# Remove collaborator using gh api
+			gh api --method=DELETE "repos/$current_user/$repo_name/collaborators/$collaborator" >/dev/null 2>&1
+			echo "${BOLD}${GREEN} ${RESET_COLOR}"
+		else
+			echo "${BOLD}${LIGHT_BLUE}$collaborator ${RESET_COLOR}is not a ${LIGHT_BLUE}collaborator ${RED}✘ ${RESET_COLOR}"
+		fi
+		done
 }
 
 # Resolve the full path to the script's directory

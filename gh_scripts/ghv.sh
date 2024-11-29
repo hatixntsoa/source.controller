@@ -1,70 +1,72 @@
 #!/bin/bash
 
 function ghv {
-	if is_a_git_repo; then
-		if [ "$#" -eq 0 ] || [ "$1" = "show" ] || [ "$1" = "owner" ]; then
-			current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
+	if ! is_a_git_repo; then
+		echo "${BOLD} This won't work, you are not in a git repo !"
+		return 0
+	fi
 
+	if [ "$#" -eq 0 ] || [ "$1" = "show" ] || [ "$1" = "owner" ]; then
+		current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
+
+		if has_remote; then
+			repo_url=$(git config --get remote.origin.url)
+			repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
+			repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
+		else
+			repo_owner=$(git config user.username)
+			repo_name=$(basename "$(git rev-parse --show-toplevel)")
+		fi
+
+		if [ "$repo_owner" != "$current_user" ] && [ "$1" != "owner" ]; then
+			echo "${BOLD} Sorry, you are not the owner of this repo !"
+		elif [ "$1" = "owner" ]; then
 			if has_remote; then
-				repo_url=$(git config --get remote.origin.url)
-				repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
-				repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
+				echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is owned by ${GREEN}$repo_owner"
 			else
-				repo_owner=$(git config user.username)
-				repo_name=$(basename "$(git rev-parse --show-toplevel)")
-			fi
-
-			if [ "$repo_owner" != "$current_user" ] && [ "$1" != "owner" ]; then
-				echo "${BOLD} Sorry, you are not the owner of this repo !"
-			elif [ "$1" = "owner" ]; then
-				if has_remote; then
-					echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is owned by ${GREEN}$repo_owner"
-				else
-					echo "${BOLD} The local repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is owned by ${GREEN}$repo_owner"
-				fi
-			else
-				if has_remote; then
-					# prompt for sudo
-					# password if required
-					allow_sudo
-
-					# Check for internet connectivity to GitHub
-					if connected; then
-						isPrivate=$(gh repo view "$repo_owner/$repo_name" --json isPrivate --jq '.isPrivate')
-
-						if [ "$1" = "show" ]; then
-							visibility=$([ "$isPrivate" = "true" ] && echo "private" || echo "public")
-							echo "${BOLD} This repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is ${GREEN}$visibility"
-						else
-							new_visibility=$([ "$isPrivate" = "true" ] && echo "public" || echo "private")
-							toggle_visibility() {
-								printf "${BOLD}${RESET_COLOR} Make ${LIGHT_BLUE}$repo_name ${RESET_COLOR}repo ${GREEN}$new_visibility ${RESET_COLOR}? (y/n) "
-								read -r change_visibility
-								if [ "$change_visibility" = "y" ]; then
-									# toggle visibility
-									printf "${BOLD} Changing repo visibility to ${GREEN}$new_visibility ${RESET_COLOR}... "
-									gh repo edit "$repo_owner/$repo_name" --visibility "$new_visibility" &>/dev/null
-									echo "${BOLD}${GREEN} ${RESET_COLOR}"
-								elif [ "$change_visibility" = "n" ]; then
-									return 0
-								else
-									toggle_visibility
-								fi
-							}
-							toggle_visibility
-						fi
-					else
-						echo "${BOLD} This won't work, you are offline !${RESET}"
-					fi
-				else
-					echo "${BOLD} The local repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is owned by ${GREEN}$repo_owner"
-				fi
+				echo "${BOLD} The local repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is owned by ${GREEN}$repo_owner"
 			fi
 		else
-			echo "${BOLD} Sorry, wrong command argument !"
+			if has_remote; then
+				# prompt for sudo
+				# password if required
+				allow_sudo
+
+				# Check for internet connectivity to GitHub
+				if ! connected; then
+					echo "${BOLD} This won't work, you are offline !${RESET}"
+					return 0
+				fi
+
+				isPrivate=$(gh repo view "$repo_owner/$repo_name" --json isPrivate --jq '.isPrivate')
+
+				if [ "$1" = "show" ]; then
+					visibility=$([ "$isPrivate" = "true" ] && echo "private" || echo "public")
+					echo "${BOLD} This repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is ${GREEN}$visibility"
+				else
+					new_visibility=$([ "$isPrivate" = "true" ] && echo "public" || echo "private")
+					toggle_visibility() {
+						printf "${BOLD}${RESET_COLOR} Make ${LIGHT_BLUE}$repo_name ${RESET_COLOR}repo ${GREEN}$new_visibility ${RESET_COLOR}? (y/n) "
+						read -r change_visibility
+						if [ "$change_visibility" = "y" ]; then
+							# toggle visibility
+							printf "${BOLD} Changing repo visibility to ${GREEN}$new_visibility ${RESET_COLOR}... "
+							gh repo edit "$repo_owner/$repo_name" --visibility "$new_visibility" &>/dev/null
+							echo "${BOLD}${GREEN} ${RESET_COLOR}"
+						elif [ "$change_visibility" = "n" ]; then
+							return 0
+						else
+							toggle_visibility
+						fi
+					}
+					toggle_visibility
+				fi
+			else
+				echo "${BOLD} The local repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is owned by ${GREEN}$repo_owner"
+			fi
 		fi
 	else
-		echo "${BOLD} This won't work, you are not in a git repo !"
+		echo "${BOLD} Sorry, wrong command argument !"
 	fi
 }
 

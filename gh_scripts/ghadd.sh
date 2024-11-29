@@ -1,40 +1,44 @@
 #!/bin/bash
 
 function ghadd {
-	if is_a_git_repo; then
-		if has_remote; then
-			if [ $# -eq 0 ]; then
-				echo "${BOLD} Specify the username of the new collaborator !"
-			elif [ $# -gt 0 ]; then
-				current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
-				repo_url=$(git config --get remote.origin.url)
-				repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
-				repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
-
-				# check if we are not the owner of the repo
-				if [ "$repo_owner" != "$current_user" ]; then
-					echo "${BOLD} Sorry, you are not the owner of this repo !"
-				else
-					# Loop through each collaborator username provided as an argument
-					for collaborator in "$@"; do
-						# Check if the collaborator exists on GitHub
-						if ! is_a_github_user "$collaborator"; then
-							printf "${BOLD} Cannot invite ${LIGHT_BLUE}$collaborator ${RESET_COLOR}to collaborate on ${LIGHT_BLUE}$repo_name${RESET_COLOR} "
-							continue
-						fi
-
-						execute_with_loading \
-							"${BOLD} Inviting ${LIGHT_BLUE}$collaborator ${RESET_COLOR}to collaborate on ${LIGHT_BLUE}$repo_name${RESET_COLOR}" \
-							"gh api --method=PUT repos/$current_user/$repo_name/collaborators/$collaborator"
-					done
-				fi
-			fi
-		else
-			echo "${BOLD} This repo has no remote on GitHub !"
-		fi
-	else
+	if ! is_a_git_repo; then
 		echo "${BOLD} This won't work, you are not in a git repo !"
+		return 0
 	fi
+
+	if ! has_remote; then
+		echo "${BOLD} This repo has no remote on GitHub !"
+		return 0
+	fi
+
+	if [ $# -eq 0 ]; then
+		echo "${BOLD} Specify the username of the new collaborator !"
+		return 0
+	fi
+
+	current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
+	repo_url=$(git config --get remote.origin.url)
+	repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
+	repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
+
+	# check if we are not the owner of the repo
+	if [ "$repo_owner" != "$current_user" ]; then
+		echo "${BOLD} Sorry, you are not the owner of this repo !"
+		return 0
+	fi
+
+	# Loop through each collaborator username provided as an argument
+	for collaborator in "$@"; do
+		# Check if the collaborator exists on GitHub
+		if ! is_a_github_user "$collaborator"; then
+			printf "${BOLD} Cannot invite ${LIGHT_BLUE}$collaborator ${RESET_COLOR}to collaborate on ${LIGHT_BLUE}$repo_name${RESET_COLOR} "
+			continue
+		fi
+
+		execute_with_loading \
+			"${BOLD} Inviting ${LIGHT_BLUE}$collaborator ${RESET_COLOR}to collaborate on ${LIGHT_BLUE}$repo_name${RESET_COLOR}" \
+			"gh api --method=PUT repos/$current_user/$repo_name/collaborators/$collaborator"
+	done
 }
 
 # Resolve the full path to the script's directory
