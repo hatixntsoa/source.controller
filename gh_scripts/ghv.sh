@@ -28,16 +28,6 @@ function ghv {
 			fi
 		else
 			if has_remote; then
-				# prompt for sudo
-				# password if required
-				allow_sudo
-
-				# Check for internet connectivity to GitHub
-				if ! connected; then
-					echo "${BOLD} This won't work, you are offline !${RESET}"
-					return 0
-				fi
-
 				isPrivate=$(gh repo view "$repo_owner/$repo_name" --json isPrivate --jq '.isPrivate')
 
 				if [ "$1" = "show" ]; then
