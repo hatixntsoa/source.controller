@@ -3,8 +3,8 @@
 # Arguments for the usage
 gcln_arguments=(
   "$(basename "$0" .sh) [repo_owner]/[repo_name]"
-  "$(basename "$0" .sh) [repo_owner]/[repo_name] --depth=[depth_num]"
-  "$(basename "$0" .sh) [repo_owner]/[repo_name] -d=[depth_num]"
+  "$(basename "$0" .sh) [repo_owner]/[repo_name] --depth [depth_num]"
+  "$(basename "$0" .sh) [repo_owner]/[repo_name] -d [depth_num]"
 )
 
 # Description for the usage
