@@ -74,7 +74,7 @@ function usage {
 }
 
 # regex to match clone repo case
-clone_regex='^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$'
+clone_regex='^[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+$'
 
 # Display help on --help flag and insifficient argument
 if [[ "$1" == "--help" || "$#" -lt 1 ]]; then
