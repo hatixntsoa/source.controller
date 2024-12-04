@@ -20,7 +20,7 @@ function ghd {
 			"${BOLD} Checking the ${GREEN}repo ${RESET_COLOR} named" \
 			"${LIGHT_BLUE}$current_user/$repo_name ${RESET_COLOR}on GitHub" \
 			"is_a_github_repo $current_user/$repo_name"; then
-			
+
 			echo "${BOLD} Sorry, there is ${GREEN}no repo ${RESET_COLOR}such as " \
 				"${LIGHT_BLUE}$current_user/$repo_name ${RESET_COLOR}on GitHub ${RESET}"
 			return 0
@@ -99,10 +99,10 @@ source "$HELPS_DIR/$HELP_FILE"
 
 # Usage function to display help
 function usage {
-  show_help "Usage" "${ghd_arguments[@]}"
-  show_help "Description" "${ghd_descriptions[@]}"
-  show_help "Options" "${ghd_options[@]}"
-  exit 0
+	show_help "Usage" "${ghd_arguments[@]}"
+	show_help "Description" "${ghd_descriptions[@]}"
+	show_help "Options" "${ghd_options[@]}"
+	exit 0
 }
 
 # Check if --help is the first argument
@@ -124,7 +124,7 @@ function delete_local_repo {
 		local repo_source=$(git rev-parse --show-toplevel)
 
 		execute_with_loading \
-			"${BOLD} Deleting ${GREEN}local ${RESET_COLOR}repo ${LIGHT_BLUE}$1 ${RESET}... " \
+			"${BOLD} Deleting ${GREEN}local ${RESET_COLOR}repo ${LIGHT_BLUE}$1 ${RESET}" \
 			"rm -rf "$repo_source/.git""
 	elif [ "$delete_local_repo" = "n" ]; then
 		return 0
@@ -140,7 +140,7 @@ function delete_repo {
 
 	if [ "$delete_repo" = "y" ]; then
 		execute_with_loading \
-			"${BOLD} Deleting repository ${LIGHT_BLUE}$1 ${RESET}on GitHub ... " \
+			"${BOLD} Deleting repository ${LIGHT_BLUE}$1 ${RESET}on GitHub" \
 			"gh repo delete "$1" --yes"
 	elif [ "$delete_repo" = "n" ]; then
 		return 1
