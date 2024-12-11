@@ -6,6 +6,25 @@ function ghv {
 		return 0
 	fi
 
+	if [[ ! connected && "$1" = "owner" ]]; then
+		if has_remote; then
+			repo_url=$(git config --get remote.origin.url)
+			repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
+			repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
+		else
+			repo_owner=$(git config user.name)
+			repo_name=$(basename "$(git rev-parse --show-toplevel)")
+		fi
+
+		if has_remote; then
+			echo "${BOLD} The repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is owned by ${GREEN}$repo_owner"
+		else
+			echo "${BOLD} The local repo ${LIGHT_BLUE}$repo_name ${RESET_COLOR}is owned by ${GREEN}$repo_owner"
+		fi
+
+		return 0
+	fi
+
 	if [ "$#" -eq 0 ] || [ "$1" = "show" ] || [ "$1" = "owner" ]; then
 		current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
 
@@ -14,7 +33,7 @@ function ghv {
 			repo_owner=$(echo "$repo_url" | awk -F '[/:]' '{print $(NF-1)}')
 			repo_name="$(echo "$repo_url" | awk -F '/' '{print $NF}' | sed 's/.git$//')"
 		else
-			repo_owner=$(git config user.username)
+			repo_owner=$(git config user.name)
 			repo_name=$(basename "$(git rev-parse --show-toplevel)")
 		fi
 
@@ -104,9 +123,6 @@ setup_git
 
 # Check gh
 check_gh
-
-# Check for internet connectivity to GitHub
-check_connection
 
 # Call ghv function
 ghv "$@"
