@@ -2,6 +2,7 @@
 
 # Arguments for the usage
 ghd_arguments=(
+  "$(basename "$0" .sh) [owned_repo]"
   "$(basename "$0" .sh)"
 )
 
@@ -12,6 +13,9 @@ ghd_descriptions=(
 
 # Options for the usage
 ghd_options=(
+  "[owned_repo]      The name of an owned repo to delete,"
+  "                  or fork name will work too"
+  ""
   "--help            Display this help message."
 )
 
