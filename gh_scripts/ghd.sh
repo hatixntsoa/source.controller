@@ -17,11 +17,11 @@ function ghd {
 
 		# Check if the repo doesn't exist
 		if ! load_and_delete \
-			"${BOLD} Checking the ${GREEN}repo ${RESET_COLOR} named" \
+			"${BOLD} Checking the ${GREEN}repo${RESET_COLOR} named" \
 			"${LIGHT_BLUE}$current_user/$repo_name ${RESET_COLOR}on GitHub" \
 			"is_a_github_repo $current_user/$repo_name"; then
 
-			echo "${BOLD} Sorry, there is ${GREEN}no repo ${RESET_COLOR}such as " \
+			echo "${BOLD} Sorry, there is ${GREEN}no repo ${RESET_COLOR}such as" \
 				"${LIGHT_BLUE}$current_user/$repo_name ${RESET_COLOR}on GitHub ${RESET}"
 			return 0
 		fi
@@ -135,15 +135,15 @@ function delete_local_repo {
 
 # Function to delete GitHub repo
 function delete_repo {
-	printf "${BOLD}${RESET} Delete ${GREEN}$repo_visibility ${RESET}repo ${LIGHT_BLUE}$1 ${RESET}? (y/n) ${RESET}"
+	printf "${BOLD} Delete ${GREEN}$repo_visibility ${RESET_COLOR}repo ${LIGHT_BLUE}$1 ${RESET_COLOR}? (y/n) ${RESET}"
 	read delete_repo
 
 	if [ "$delete_repo" = "y" ]; then
 		execute_with_loading \
-			"${BOLD} Deleting repository ${LIGHT_BLUE}$1 ${RESET}on GitHub" \
+			"${BOLD} Deleting repository ${LIGHT_BLUE}$1 ${RESET_COLOR}on GitHub" \
 			"gh repo delete "$1" --yes"
 	elif [ "$delete_repo" = "n" ]; then
-		return 1
+		return 0
 	else
 		delete_repo "$1"
 	fi
