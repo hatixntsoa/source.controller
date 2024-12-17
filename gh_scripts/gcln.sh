@@ -3,9 +3,9 @@
 function clone_repo {
   # Default GitHub URL prefix
   GITHUB_URL="https://github.com"
-  
+
   local depth=""
-  
+
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --depth | -d)
@@ -23,6 +23,15 @@ function clone_repo {
 
   # Check if repo has not the format owner/repo
   if [[ ! "$repo" =~ $clone_regex ]]; then
+    current_user=$(awk '/user:/ {print $2; exit}' ~/.config/gh/hosts.yml)
+
+    # if it is our own repo the clone it
+    if is_my_github_repo "$current_user/$repo"; then
+      gh repo clone "$current_user/$repo"
+      return 0
+    fi
+
+    # else print the help
     usage
   fi
 
@@ -55,6 +64,7 @@ UTILS_DIR="$PARENT_DIR/utils"
 
 # Import necessary variables and functions
 source "$UTILS_DIR/check_connection.sh"
+source "$UTILS_DIR/check_repo.sh"
 source "$UTILS_DIR/check_git.sh"
 source "$UTILS_DIR/setup_git.sh"
 source "$UTILS_DIR/check_sudo.sh"
