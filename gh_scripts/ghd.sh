@@ -19,7 +19,7 @@ function ghd {
 		if ! load_and_delete \
 			"${BOLD} Checking the ${GREEN}repo${RESET_COLOR} named" \
 			"${LIGHT_BLUE}$current_user/$repo_name ${RESET_COLOR}on GitHub" \
-			"is_a_github_repo $current_user/$repo_name"; then
+			"is_my_github_repo $current_user/$repo_name"; then
 
 			echo "${BOLD} Sorry, there is ${GREEN}no repo ${RESET_COLOR}such as" \
 				"${LIGHT_BLUE}$current_user/$repo_name ${RESET_COLOR}on GitHub ${RESET}"
