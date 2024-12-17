@@ -15,3 +15,7 @@ function is_a_github_repo {
 	# If we receive a response then the user exists
 	[ -n "$response" ] && return 0 || return 1
 }
+
+function is_my_github_repo {
+  gh repo view "$1" &> /dev/null
+}
