@@ -1,31 +1,35 @@
 #!/bin/bash
 
 function grst {
-	if ! is_a_git_repo; then
-		echo "${BOLD}${RESET_COLOR} This won't work, you are not in a git repo !"
-		return 0
-	fi
+  if ! is_a_git_repo; then
+    echo "${BOLD}${RESET_COLOR} This won't work, you are not in a git repo !"
+    return 0
+  fi
 
-	if [ $# -eq 0 ]; then
-		git checkout -- .
-		return 0
-	fi
+  if [ $# -eq 0 ]; then
+    git checkout -- .
+    return 0
+  fi
 
-	if [ $1 = "cmt" ]; then
-		git reset --soft HEAD~1
-		return 0
-	fi
+  if [ -f "$1 "]; then
+    git reset "$1"
+  fi
 
-	# Loop through each argument and check if it's a file
-	for arg in "$@"; do
-		if [ ! -f "$arg" ]; then
-			echo "${BOLD}${RESET_COLOR} Sorry, only restore file(s). ${LIGHT_BLUE}'$arg'${RESET_COLOR} is not a valid file."
-			exit 1
-		fi
-	done
-	
-	# If all arguments are valid files, restore them
-	git restore "$@"
+  if [ $1 = "cmt" ]; then
+    git reset --soft HEAD~1
+    return 0
+  fi
+
+  # Loop through each argument and check if it's a file
+  for arg in "$@"; do
+    if [ ! -f "$arg" ]; then
+      echo "${BOLD}${RESET_COLOR} Sorry, only restore file(s). ${LIGHT_BLUE}'$arg'${RESET_COLOR} is not a valid file."
+      exit 1
+    fi
+  done
+
+  # If all arguments are valid files, restore them
+  git restore "$@"
 }
 
 # Resolve the full path to the script's directory
@@ -69,3 +73,4 @@ setup_git
 
 # Call grst function
 grst "$@"
+
