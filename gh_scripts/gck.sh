@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# WARNING : 03-30-2025 02:18
+# Specify the base branch
+# when trying to create feature
+# branches with the following commands
+# git switch -c new-branch old-branch
+# git push -u origin new-branch
+
 function gck {
 	if ! is_a_git_repo; then
 		echo "${BOLD} This won't work, you are not in a git repo !"
