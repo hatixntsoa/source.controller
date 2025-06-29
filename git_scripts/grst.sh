@@ -11,8 +11,9 @@ function grst {
     return 0
   fi
 
-  if [ -f "$1 "]; then
+  if [ -f "$1" ]; then
     git reset "$1"
+    return 0
   fi
 
   if [ $1 = "cmt" ]; then
@@ -73,4 +74,3 @@ setup_git
 
 # Call grst function
 grst "$@"
-
