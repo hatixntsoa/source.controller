@@ -18,7 +18,7 @@ for your GitHub repositories, these scripts enable you to do so efficiently
 
 1. **Clone the repository**
   ```sh
-  git clone https://github.com/h471x/source_controller.git
+  git clone https://github.com/hatixntsoa/source_controller.git
   ```
 2. **Navigate to the directory**
   ```sh
