@@ -22,7 +22,7 @@ for your GitHub repositories, these scripts enable you to do so efficiently
   ```
 2. **Navigate to the directory**
   ```sh
-  cd git_gh
+  cd source.controller
   ```
 3. **Set execution permissions**
   ```sh
