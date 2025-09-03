@@ -1,24 +1,36 @@
 #!/bin/bash
 
-function gcb {
+function gmb {
 	if ! is_a_git_repo; then
-		echo "${BOLD}${RESET_COLOR} This won't work, you are not in a git repo !"
+		echo "${BOLD} This won't work, you are not in a git repo !"
 		return 0
 	fi
 
 	if [ $# -eq 0 ]; then
-		git checkout -
+		echo "${BOLD} Fatal ! Specify the Branch to merge to $current_branch"
 		return 0
 	fi
-	
-	# Wrong command
-	echo "${BOLD}${RESET_COLOR} Usage : gcb (no argument)"
+
+	current_branch=$(git branch | awk '/\*/ {print $2}')
+
+	# check if the branch doesn't exist
+	if ! is_a_git_branch "$1"; then
+		echo "${BOLD} Fatal ! $1 is a Non Existing branch "
+		return 0
+	fi
+
+	if [ "$current_branch" = "$1" ]; then
+		echo "${BOLD} Fatal ! Cannot Merge Identical Branch "
+		return 0
+	fi
+
+	git merge "$1"
 }
 
 # Resolve the full path to the script's directory
 REAL_PATH="$(dirname "$(readlink -f "$0")")"
 PARENT_DIR="$(dirname "$REAL_PATH")"
-CATEGORY="git_scripts"
+CATEGORY="git.scripts"
 
 HELPS_DIR="$PARENT_DIR/helps/$CATEGORY"
 HELP_FILE="$(basename "$0" .sh)_help.sh"
@@ -27,6 +39,7 @@ UTILS_DIR="$PARENT_DIR/utils"
 
 # Import necessary variables and functions
 source "$UTILS_DIR/check_git.sh"
+source "$UTILS_DIR/check_branch.sh"
 source "$UTILS_DIR/setup_git.sh"
 source "$UTILS_DIR/check_sudo.sh"
 source "$UTILS_DIR/colors.sh"
@@ -36,11 +49,11 @@ source "$UTILS_DIR/usage.sh"
 source "$HELPS_DIR/$HELP_FILE"
 
 # Usage function to display help
-function usage() {
-  show_help "Usage" "${gcb_arguments[@]}"
-  show_help "Description" "${gcb_descriptions[@]}"
-  show_help "Options" "${gcb_options[@]}"
-  show_extra "${gcb_extras[@]}"
+function usage {
+  show_help "Usage" "${gmb_arguments[@]}"
+  show_help "Description" "${gmb_descriptions[@]}"
+  show_help "Options" "${gmb_options[@]}"
+  show_help "Examples" "${gmb_extras[@]}"
   exit 0
 }
 
@@ -54,5 +67,5 @@ allow_sudo
 # Setting up git
 setup_git
 
-# Call gcb function
-gcb
+# Call gmb function
+gmb "$@"

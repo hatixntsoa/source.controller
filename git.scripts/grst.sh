@@ -36,7 +36,7 @@ function grst {
 # Resolve the full path to the script's directory
 REAL_PATH="$(dirname "$(readlink -f "$0")")"
 PARENT_DIR="$(dirname "$REAL_PATH")"
-CATEGORY="git_scripts"
+CATEGORY="git.scripts"
 
 HELPS_DIR="$PARENT_DIR/helps/$CATEGORY"
 HELP_FILE="$(basename "$0" .sh)_help.sh"

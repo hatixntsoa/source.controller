@@ -1,18 +1,18 @@
 #!/bin/bash
 
-function ghdel {
+function ghadd {
 	if ! is_a_git_repo; then
 		echo "${BOLD} This won't work, you are not in a git repo !"
 		return 0
 	fi
 
 	if ! has_remote; then
-		echo "${BOLD} This repo has no remote on Github !"
+		echo "${BOLD} This repo has no remote on GitHub !"
 		return 0
 	fi
 
 	if [ $# -eq 0 ]; then
-		echo "${BOLD} Specify the username of the collaborator to remove !"
+		echo "${BOLD} Specify the username of the new collaborator !"
 		return 0
 	fi
 
@@ -27,38 +27,24 @@ function ghdel {
 		return 0
 	fi
 
-	# Retrieve the list of collaborators
-	collaborators=$(gh api "repos/$current_user/$repo_name/collaborators" --jq '.[].login')
-	invitations=$(gh api "repos/$current_user/$repo_name/invitations" --jq '.[].invitee.login')
-
 	# Loop through each collaborator username provided as an argument
 	for collaborator in "$@"; do
-		# Check if the collaborator exists in the list of collaborators
-		if echo "$collaborators" | grep -q "$collaborator" ||
-			echo "$invitations" | grep -q "$collaborator"; then
-			printf "${BOLD} Removing ${LIGHT_BLUE}$collaborator ${RESET_COLOR}from ${LIGHT_BLUE}$repo_name${RESET_COLOR} "
-			# Check for pending invitations
-			invitation_id=$(gh api "repos/$current_user/$repo_name/invitations" --jq ".[] | select(.invitee.login==\"$collaborator\") | .id")
-
-			if [ -n "$invitation_id" ]; then
-				# Delete the pending invitation
-				gh api --method=DELETE "repos/$current_user/$repo_name/invitations/$invitation_id" >/dev/null 2>&1
-				printf " ${BOLD}(invitation deleted) "
-			fi
-
-			# Remove collaborator using gh api
-			gh api --method=DELETE "repos/$current_user/$repo_name/collaborators/$collaborator" >/dev/null 2>&1
-			echo "${BOLD}${GREEN} ${RESET_COLOR}"
-		else
-			echo "${BOLD}${LIGHT_BLUE}$collaborator ${RESET_COLOR}is not a ${LIGHT_BLUE}collaborator ${RED}✘ ${RESET_COLOR}"
+		# Check if the collaborator exists on GitHub
+		if ! is_a_github_user "$collaborator"; then
+			printf "${BOLD} Cannot invite ${LIGHT_BLUE}$collaborator ${RESET_COLOR}to collaborate on ${LIGHT_BLUE}$repo_name${RESET_COLOR} "
+			continue
 		fi
+
+		execute_with_loading \
+			"${BOLD} Inviting ${LIGHT_BLUE}$collaborator ${RESET_COLOR}to collaborate on ${LIGHT_BLUE}$repo_name${RESET_COLOR}" \
+			"gh api --method=PUT repos/$current_user/$repo_name/collaborators/$collaborator"
 	done
 }
 
 # Resolve the full path to the script's directory
 REAL_PATH="$(dirname "$(readlink -f "$0")")"
 PARENT_DIR="$(dirname "$REAL_PATH")"
-CATEGORY="gh_scripts"
+CATEGORY="gh.scripts"
 
 HELPS_DIR="$PARENT_DIR/helps/$CATEGORY"
 HELP_FILE="$(basename "$0" .sh)_help.sh"
@@ -72,7 +58,9 @@ source "$UTILS_DIR/check_gh.sh"
 source "$UTILS_DIR/setup_git.sh"
 source "$UTILS_DIR/check_remote.sh"
 source "$UTILS_DIR/check_sudo.sh"
+source "$UTILS_DIR/check_user.sh"
 source "$UTILS_DIR/colors.sh"
+source "$UTILS_DIR/loading.sh"
 source "$UTILS_DIR/usage.sh"
 
 # Import help file
@@ -80,10 +68,10 @@ source "$HELPS_DIR/$HELP_FILE"
 
 # Usage function to display help
 function usage {
-  show_help "Usage" "${ghdel_arguments[@]}"
-  show_help "Description" "${ghdel_descriptions[@]}"
-  show_help "Options" "${ghdel_options[@]}"
-  show_extra "${ghdel_extras[@]}"
+  show_help "Usage" "${ghadd_arguments[@]}"
+  show_help "Description" "${ghadd_descriptions[@]}"
+  show_help "Options" "${ghadd_options[@]}"
+  show_extra "${ghadd_extras[@]}"
   exit 0
 }
 
@@ -103,5 +91,5 @@ check_gh
 # Check for internet connectivity to GitHub
 check_connection
 
-# Call ghdel function
-ghdel "$@"
+# Call ghadd function
+ghadd "$@"

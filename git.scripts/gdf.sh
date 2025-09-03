@@ -1,19 +1,18 @@
 #!/bin/bash
 
-function gst {
-	if ! is_a_git_repo; then
-    echo "${BOLD} This won't work, you are not in a git repo !"
+function gdf {
+  if ! is_a_git_repo; then
+    echo "${BOLD} This won't work, you are not in a git repo !";
     return 0
   fi
-
-  # Get the status
-	git status -s
+    
+  git diff ${1:-}
 }
 
 # Resolve the full path to the script's directory
 REAL_PATH="$(dirname "$(readlink -f "$0")")"
 PARENT_DIR="$(dirname "$REAL_PATH")"
-CATEGORY="git_scripts"
+CATEGORY="git.scripts"
 
 HELPS_DIR="$PARENT_DIR/helps/$CATEGORY"
 HELP_FILE="$(basename "$0" .sh)_help.sh"
@@ -32,10 +31,10 @@ source "$HELPS_DIR/$HELP_FILE"
 
 # Usage function to display help
 function usage {
-  show_help "Usage" "${gst_arguments[@]}"
-  show_help "Description" "${gst_descriptions[@]}"
-  show_help "Options" "${gst_options[@]}"
-  show_extra "${gst_extras[@]}"
+  show_help "Usage" "${gdf_arguments[@]}"
+	show_help "Description" "${gdf_descriptions[@]}"
+	show_help "Options" "${gdf_options[@]}"
+	show_extra "${gdf_extras[@]}"
   exit 0
 }
 
@@ -49,5 +48,5 @@ allow_sudo
 # Setting up git
 setup_git
 
-# Call gst function
-gst
+# Call gdf function
+gdf "$@"

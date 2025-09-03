@@ -19,6 +19,6 @@ ghnm_options=(
 
 # Extra help
 ghnm_extras=(
-  "ghnm source_controller"
-  "This will rename the current repo to ${LIGHT_BLUE}source_controller ${RESET}"
+  "ghnm source.controller"
+  "This will rename the current repo to ${LIGHT_BLUE}source.controller ${RESET}"
 )

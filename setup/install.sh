@@ -7,8 +7,8 @@ binary_path=$(whereis sh | grep -o '/[^ ]*/bin' | head -n 1)
 repo_source=$(git rev-parse --show-toplevel)
 
 # Define paths to script directories
-git_scripts_path="$repo_source/git_scripts"
-gh_scripts_path="$repo_source/gh_scripts"
+git_scripts_path="$repo_source/git.scripts"
+gh_scripts_path="$repo_source/gh.scripts"
 
 # Function to extract script name without the .sh extension
 function get_script_name {

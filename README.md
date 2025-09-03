@@ -18,7 +18,7 @@ for your GitHub repositories, these scripts enable you to do so efficiently
 
 1. **Clone the repository**
   ```sh
-  git clone https://github.com/hatixntsoa/source_controller.git
+  git clone https://github.com/hatixntsoa/source.controller.git
   ```
 2. **Navigate to the directory**
   ```sh
@@ -26,7 +26,7 @@ for your GitHub repositories, these scripts enable you to do so efficiently
   ```
 3. **Set execution permissions**
   ```sh
-  chmod u+x {gh_scripts/*,git_scripts/*,setup/*}
+  chmod u+x {gh.scripts/*,git.scripts/*,setup/*}
   ```
 4. **Run the installation script**
   ```sh

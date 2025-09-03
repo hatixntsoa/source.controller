@@ -39,7 +39,7 @@ function ghnm {
 # Resolve the full path to the script's directory
 REAL_PATH="$(dirname "$(readlink -f "$0")")"
 PARENT_DIR="$(dirname "$REAL_PATH")"
-CATEGORY="gh_scripts"
+CATEGORY="gh.scripts"
 
 HELPS_DIR="$PARENT_DIR/helps/$CATEGORY"
 HELP_FILE="$(basename "$0" .sh)_help.sh"

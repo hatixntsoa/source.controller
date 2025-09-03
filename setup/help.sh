@@ -38,15 +38,15 @@ source "$UTILS_DIR/check_sudo.sh"
 source "$UTILS_DIR/colors.sh"
 
 # Directories for source and target
-GIT_SCRIPTS_DIR="$PARENT_DIR/git_scripts"
-GH_SCRIPTS_DIR="$PARENT_DIR/gh_scripts"
+git.scripts_DIR="$PARENT_DIR/git.scripts"
+gh.scripts_DIR="$PARENT_DIR/gh.scripts"
 
-HELP_GIT_SCRIPTS_DIR="$PARENT_DIR/helps/git_scripts"
-HELP_GH_SCRIPTS_DIR="$PARENT_DIR/helps/gh_scripts"
+HELP_git.scripts_DIR="$PARENT_DIR/helps/git.scripts"
+HELP_gh.scripts_DIR="$PARENT_DIR/helps/gh.scripts"
 
 # Create the directories if they don't exist
-mkdir -p "$HELP_GIT_SCRIPTS_DIR"
-mkdir -p "$HELP_GH_SCRIPTS_DIR"
+mkdir -p "$HELP_git.scripts_DIR"
+mkdir -p "$HELP_gh.scripts_DIR"
 
 # Function to write help file content
 function write_help_file_content {
@@ -78,12 +78,12 @@ ${script_name}_extras=(
 EOL
 }
 
-# Create help files for git_scripts
+# Create help files for git.scripts
 printf "\n${BOLD} Git Scripts Helps...${RESET}\n"
-create_help_files "$GIT_SCRIPTS_DIR" "$HELP_GIT_SCRIPTS_DIR"
+create_help_files "$git.scripts_DIR" "$HELP_git.scripts_DIR"
 
 echo
 
-# Create help files for gh_scripts
+# Create help files for gh.scripts
 printf "${BOLD} Gh Scripts Helps...${RESET}\n"
-create_help_files "$GH_SCRIPTS_DIR" "$HELP_GH_SCRIPTS_DIR"
+create_help_files "$gh.scripts_DIR" "$HELP_gh.scripts_DIR"
